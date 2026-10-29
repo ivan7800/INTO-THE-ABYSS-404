@@ -6,7 +6,7 @@
 (() => {
  type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics:new()=>any;Container:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
  type Scene={corruption:number;sector:number;quality:'lite'|'full';lights:{x:number;y:number}[]};
- const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,portProps:0,atmosphereFrames:0,weatherParticles:0,fps:0};
+ const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,portProps:0,atmosphereFrames:0,weatherParticles:0,monsterSprites:0,damageReactions:0,attackAnimations:0,fps:0};
  const w=window as Window & {PIXI?:PixiGlobal;AbyssPixi?:typeof runtime};
  w.AbyssPixi=runtime;
  async function activate(pixi:PixiGlobal){
@@ -65,11 +65,12 @@
    const atmosphere=(window as any).AbyssPortAtmosphere?.attach(pixi,app.stage);
    if(!atmosphere)throw Error('missing-port-atmosphere');
    const actorCache=new Map<number,any>(),textureCache=new Map<string,any>();
+   let previousTurn=-1;
    const position=(x:number,y:number)=>({x:320+(x-y)*39,y:155+(x+y)*24});
-   const pixiSprite=(type:string,frame:number,injured:boolean)=>{
-    const key=type+':'+frame+':'+injured;
+   const pixiSprite=(type:string,frame:number,injured:boolean,attack=false,enemy=false)=>{
+    const key=type+':'+frame+':'+injured+':'+attack+':'+enemy;
     if(textureCache.has(key))return textureCache.get(key);
-    const src=window.AbyssPixel?.sprite?.(type,frame,injured);
+    const src=enemy && (window as any).AbyssPixel?.monster ? (window as any).AbyssPixel.monster(type,frame,injured,attack) : window.AbyssPixel?.sprite?.(type,frame,injured);
     if(!src)throw Error('missing-pixel-sprite:'+type);
     const tex=pixi.Texture.from(src);tex.source.scaleMode='nearest';
     textureCache.set(key,tex);return tex;
@@ -129,18 +130,23 @@
      terrain.poly([p.x,p.y-23,p.x+38,p.y,p.x,p.y+23,p.x-38,p.y],true)
        .stroke({color:0xffd58e,width:2,alpha:1});
     }
+    const turnChanged=previousTurn>=0&&previousTurn!==view.turn;
+    previousTurn=view.turn;
     const active=new Set<number>();
     for(const u of view.units){
      active.add(u.id);
      let a=actorCache.get(u.id);
      if(!a){
       const holder=new pixi.Container(),shadow=new pixi.Graphics(),ring=new pixi.Graphics(),health=new pixi.Graphics();
-      const graphic=new pixi.Sprite(pixiSprite(u.type,0,false));
+      const graphic=new pixi.Sprite(pixiSprite(u.type,0,false,false,u.side!=='ally'));
       graphic.anchor.set(.5,1);holder.addChild(shadow,graphic,ring,health);
       actorLayer.addChild(holder);
-      a={holder,shadow,ring,health,graphic,x:u.x,y:u.y,from:position(u.x,u.y),start:now,pose:''};
+      a={holder,shadow,ring,health,graphic,x:u.x,y:u.y,hp:u.hp,from:position(u.x,u.y),start:now,pose:'',hurtAt:-Infinity,attackAt:-Infinity};
       actorCache.set(u.id,a);
      }
+     if(u.hp<a.hp){a.hurtAt=now;runtime.damageReactions++}
+     a.hp=u.hp;
+     if(turnChanged&&u.side!=='ally'){a.attackAt=now;runtime.attackAnimations++}
      const p=position(u.x,u.y);
      if(a.x!==u.x||a.y!==u.y){
       a.from=position(a.x,a.y);a.start=now;a.x=u.x;a.y=u.y;
@@ -151,13 +157,16 @@
      const boss=u.type==='boss'||u.type==='leviathan';
      const w=boss?91:u.side==='ally'?58:64,h=boss?118:u.side==='ally'?78:86;
      a.graphic.width=w;a.graphic.height=h;a.graphic.y=9;
+     const attacking=!reduced&&u.side!=='ally'&&now-a.attackAt<360;
+     const hurt=u.side!=='ally'&&now-a.hurtAt<280;
      const frame=reduced?0:Math.floor(now/(u.side==='ally'?180:260)+u.id)%4;
-     const injured=u.hp/u.max<=.4,pose=u.type+':'+frame+':'+injured;
-     if(a.pose!==pose){a.graphic.texture=pixiSprite(u.type,frame,injured);a.pose=pose}
+     const injured=u.hp/u.max<=.4||hurt,pose=u.type+':'+frame+':'+injured+':'+attacking+':'+u.side;
+     if(a.pose!==pose){a.graphic.texture=pixiSprite(u.type,frame,injured,attacking,u.side!=='ally');a.pose=pose}
      a.shadow.clear().ellipse(0,4,boss?37:23,boss?13:9).fill({color:0x020a13,alpha:.74});
      a.ring.clear();
      if(u.id===view.selected)a.ring.ellipse(0,5,boss?39:27,12).stroke({color:0xffd28c,width:2,alpha:1});
      if(u.stunned)a.ring.ellipse(0,-h+25,w*.36,8).stroke({color:0xb4edff,width:2,alpha:.9});
+     a.graphic.tint=hurt?0xffa0a0:0xffffff;
      a.health.clear().roundRect(-18,11,36,6,2).fill({color:0x08131c,alpha:.96})
        .roundRect(-17,12,Math.max(0,34*Math.min(1,u.hp/u.max)),4,1)
        .fill({color:u.side==='ally'?0x94e1ca:0xe58b9e});
@@ -167,6 +176,7 @@
     }
     atmosphere.tick(now,view,reduced);
     const env=atmosphere.stats();runtime.atmosphereFrames=env.frames;runtime.weatherParticles=env.particles;
+    runtime.monsterSprites=view.units.filter((u:any)=>u.side!=='ally').length;
     runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64+portProps.length:0);
    };
 
