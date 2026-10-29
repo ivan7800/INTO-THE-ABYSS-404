@@ -246,7 +246,7 @@ const hash=(x,y,z=0)=>((x*73856093^y*19349663^z*83492791)>>>0)/4294967295;
 let visualTime=0;
 function polygon(points,fill,stroke=null,line=1){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.lineWidth=line;ctx.strokeStyle=stroke;ctx.stroke()}}
 function glow(x,y,r,c){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)}
-function tile(x,y,fill,edge){const p=project(x,y);polygon([[p.x,p.y-TILE_RY],[p.x+TILE_RX,p.y],[p.x,p.y+TILE_RY],[p.x-TILE_RX,p.y]],fill,edge,1);return p}
+function tile(x,y,fill,edge){const p=project(x,y);if((window as any).AbyssPixi?.hideCanvasWorld&&campaign.sector!==0)return p;polygon([[p.x,p.y-TILE_RY],[p.x+TILE_RX,p.y],[p.x,p.y+TILE_RY],[p.x-TILE_RX,p.y]],fill,edge,1);return p}
 function windows(px,py){ctx.fillStyle='#e3bc78';for(let i=0;i<3;i++){ctx.globalAlpha=.48+.35*hash(i,px|0,py|0);ctx.fillRect(px+i*10,py,5,8)}ctx.globalAlpha=1}
 function house(p,b){if(window.AbyssEnvironment?.paint(ctx,'building',p,campaign.sector,(b.x*3+b.y)%3)){ctx.save();ctx.fillStyle='#08151e';ctx.fillRect(p.x-15,p.y+8,30,13);ctx.fillStyle='#e8d3a6';ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.fillText(b.hp,p.x,p.y+19);ctx.restore();return}const x=p.x,y=p.y,seed=hash(b.x??x,b.y??y),style=seed>.65?2:seed>.33?1:0;
  ctx.save();ctx.fillStyle='#07151d88';ctx.beginPath();ctx.ellipse(x+7,y+8,31,10,0,0,Math.PI*2);ctx.fill();
@@ -391,10 +391,10 @@ ctx.fillStyle='#334954';ctx.globalAlpha=.3;for(let j=0;j<18;j++){let y=116+j*3;c
 const selected=alive('ally').find(a=>a.id===state.selected),reachable=selected&&!selected.moved&&state.mode==='move'?pathCells(selected):new Map();
 for(let depth=0;depth<=14;depth++){for(let x=0;x<8;x++){let y=depth-x;if(y<0||y>=8)continue;const k=key(x,y),threat=state.intent.some(i=>i.x===x&&i.y===y),rift=state.rifts.some(r=>r.x===x&&r.y===y);let c=(x+y)%2?'#354951':'#3c5158';if(reachable.has(k))c='#286b70';if(rift)c='#5b335c';if(threat)c='#7a3d48';const omen=state.omen&&state.omen.x===x&&state.omen.y===y;if(omen)c=state.omen.type==='fracture'?'#84623b':'#475e8a';const p=tile(x,y,c,threat?'#eaa2a0':'#587078');if(state.resonance&&state.resonance.x===x&&state.resonance.y===y){ctx.strokeStyle='#ef9df6';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(p.x,p.y,29,14,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#f7c5ff';ctx.textAlign='center';ctx.font='bold 13px monospace';ctx.fillText('◎',p.x,p.y-15)}if(omen){ctx.fillStyle='#ffe1a1';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText(state.omen.type==='fracture'?'✴':'◈',p.x,p.y+5)}if(state.objective&&!state.objectiveDone&&state.objective.x===x&&state.objective.y===y){ctx.strokeStyle='#f2c979';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(p.x,p.y,21,10,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#ffe2a8';ctx.font='bold 12px monospace';ctx.textAlign='center';ctx.fillText('◆',p.x,p.y+4)}
 // Quiet, even ground pattern: threats and movement colors remain legible.
-drawSectorGround(p,x,y);window.AbyssEnvironment?.paint(ctx,'tile',p,campaign.sector,(x*7+y*13)%4);
+if(!((window as any).AbyssPixi?.hideCanvasWorld&&campaign.sector!==0)){drawSectorGround(p,x,y);window.AbyssEnvironment?.paint(ctx,'tile',p,campaign.sector,(x*7+y*13)%4);}
 if(rift)portal(p);
-const b=building(x,y);if(b&&!(window.AbyssPixi?.hideCanvasPort&&campaign.sector===0))house(p,b);
-if(state.rocks.some(r=>r.x===x&&r.y===y)&&!(window.AbyssPixi?.hideCanvasPort&&campaign.sector===0))rock(p);
+const b=building(x,y);if(b&&!(window.AbyssPixi?.hideCanvasPort&&campaign.sector===0)&&!((window as any).AbyssPixi?.hideCanvasWorld&&campaign.sector!==0))house(p,b);
+if(state.rocks.some(r=>r.x===x&&r.y===y)&&!(window.AbyssPixi?.hideCanvasPort&&campaign.sector===0)&&!((window as any).AbyssPixi?.hideCanvasWorld&&campaign.sector!==0))rock(p);
 const u=at(x,y);if(u&&!window.AbyssPixi?.hideCanvasUnits){unitIcon(p,u);if(u.side==='ally'&&u.id===state.selected){ctx.save();ctx.strokeStyle='#f3d997';ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(p.x,p.y+5,25,12,0,0,Math.PI*2);ctx.stroke();ctx.restore()}}
 if(threat){ctx.strokeStyle='#ffa6a1';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,16,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#ffe5c6';ctx.font='bold 15px monospace';ctx.textAlign='center';ctx.fillText('!',p.x,p.y+5)}
 }}

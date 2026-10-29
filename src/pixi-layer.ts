@@ -6,7 +6,7 @@
 (() => {
  type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics:new()=>any;Container:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
  type Scene={corruption:number;sector:number;quality:'lite'|'full';lights:{x:number;y:number}[]};
- const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,portProps:0,atmosphereFrames:0,weatherParticles:0,monsterSprites:0,damageReactions:0,attackAnimations:0,fps:0};
+ const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,hideCanvasWorld:false,nativeBiomes:4,activeBiome:0,biomeBuildings:0,biomeTextures:0,nativeBuildings:0,portAtlas:0,portProps:0,atmosphereFrames:0,weatherParticles:0,monsterSprites:0,damageReactions:0,attackAnimations:0,fps:0};
  const w=window as Window & {PIXI?:PixiGlobal;AbyssPixi?:typeof runtime};
  w.AbyssPixi=runtime;
  async function activate(pixi:PixiGlobal){
@@ -60,6 +60,27 @@
    placeProp('dock',118,397,0);placeProp('dock',514,395,1);
    placeProp('lantern',121,348,0);placeProp('lantern',516,345,1);
    placeProp('lighthouse',563,278,0);
+   // Four GPU-native sector layers, with sector-specific atlas textures.
+   const biomeTiles=new pixi.Container(),biomeBuildingsLayer=new pixi.Container();
+   biomeBuildingsLayer.sortableChildren=true;
+   app.stage.addChild(biomeTiles,biomeBuildingsLayer);
+   const biomeTileSprites:any[]=[],biomeBuildingCache=new Map<string,any>(),biomeTextures=new Map<string,any>();
+   const biomeTexture=(sector:number,kind:'tile'|'building'|'rock',variant:number,hp:number)=>{
+    const key=sector+':'+kind+':'+variant+':'+hp;
+    if(biomeTextures.has(key))return biomeTextures.get(key);
+    const src=(window as any).AbyssSectorArt?.create(sector,kind,variant,hp);
+    if(!src)throw Error('missing-sector-art');
+    const texture=pixi.Texture.from(src);texture.source.scaleMode='nearest';
+    biomeTextures.set(key,texture);return texture;
+   };
+   for(let depth=0;depth<=14;depth++)for(let x=0;x<8;x++){
+    const y=depth-x;if(y<0||y>=8)continue;
+    const tile=new pixi.Sprite(biomeTexture(1,'tile',(x*7+y*13)%8,0));
+    const p={x:320+(x-y)*39,y:155+(x+y)*24};
+    tile.anchor.set(.5,.5);tile.position.set(p.x,p.y);
+    biomeTiles.addChild(tile);biomeTileSprites.push({sprite:tile,x,y,variant:(x*7+y*13)%8});
+   }
+   let activeBiome=0;
    const terrain=new pixi.Graphics();app.stage.addChild(terrain);
    const actorLayer=new pixi.Container();actorLayer.sortableChildren=true;app.stage.addChild(actorLayer);
    const atmosphere=(window as any).AbyssPortAtmosphere?.attach(pixi,app.stage);
@@ -81,6 +102,39 @@
     terrain.clear();
     const portActive=view.sector===0;
     portTiles.visible=portActive;portBuildings.visible=portActive;portPropsLayer.visible=portActive;
+    const biomeActive=view.sector>=1&&view.sector<=4;
+    biomeTiles.visible=biomeActive;biomeBuildingsLayer.visible=biomeActive;
+    runtime.hideCanvasWorld=biomeActive;runtime.activeBiome=biomeActive?view.sector:0;
+    if(biomeActive){
+     if(activeBiome!==view.sector){
+      activeBiome=view.sector;
+      for(const t of biomeTileSprites)t.sprite.texture=biomeTexture(activeBiome,'tile',t.variant,0);
+      for(const [key,obj] of biomeBuildingCache){biomeBuildingsLayer.removeChild(obj);obj.destroy();biomeBuildingCache.delete(key)}
+     }
+     const accessible=new Set<string>(view.reachable||[]);
+     const dangerous=new Set<string>(view.threats.map((t:any)=>t.x+','+t.y));
+     const cursed=new Set<string>(view.rifts.map((t:any)=>t.x+','+t.y));
+     for(const t of biomeTileSprites){
+      const key=t.x+','+t.y;
+      t.sprite.tint=accessible.has(key)?0x66c7c6:cursed.has(key)?0xae74bc:dangerous.has(key)?0xd27b89:0xffffff;
+     }
+     const present=new Set<string>();
+     const place=(kind:'building'|'rock',x:number,y:number,hp:number)=>{
+      const key=kind+':'+x+','+y;present.add(key);
+      let sprite=biomeBuildingCache.get(key);
+      if(!sprite){sprite=new pixi.Sprite(biomeTexture(activeBiome,kind,(x*3+y)%5,hp));
+       sprite.anchor.set(.5,1);biomeBuildingsLayer.addChild(sprite);biomeBuildingCache.set(key,sprite);sprite.__hp=hp}
+      if(sprite.__hp!==hp){sprite.texture=biomeTexture(activeBiome,kind,(x*3+y)%5,hp);sprite.__hp=hp}
+      const p={x:320+(x-y)*39,y:155+(x+y)*24};
+      sprite.position.set(p.x,p.y+17);sprite.zIndex=(x+y)*10+x;
+     };
+     for(const b of view.buildings)place('building',b.x,b.y,b.hp);
+     for(const r of view.rocks)place('rock',r.x,r.y,0);
+     for(const [key,obj] of biomeBuildingCache)if(!present.has(key)){
+      biomeBuildingsLayer.removeChild(obj);obj.destroy();biomeBuildingCache.delete(key);
+     }
+     runtime.biomeBuildings=biomeBuildingCache.size;runtime.biomeTextures=biomeTextures.size;
+    }
     runtime.hideCanvasPort=portActive;
     if(portActive){
      const reach=new Set<string>(view.reachable||[]);
@@ -177,7 +231,7 @@
     atmosphere.tick(now,view,reduced);
     const env=atmosphere.stats();runtime.atmosphereFrames=env.frames;runtime.weatherParticles=env.particles;
     runtime.monsterSprites=view.units.filter((u:any)=>u.side!=='ally').length;
-    runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64+portProps.length:0);
+    runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64+portProps.length:biomeActive?biomeBuildingCache.size+64:0);
    };
 
    // First genuinely native PixiJS object, drawn independently of Canvas.
@@ -196,7 +250,7 @@
    const output=app.canvas as HTMLCanvasElement;
    output.id='pixi-screen';output.setAttribute('aria-hidden','true');
    output.addEventListener('webglcontextlost',(event:Event)=>{
-    event.preventDefault();runtime.status='fallback';runtime.reason='webglcontextlost';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;
+    event.preventDefault();runtime.status='fallback';runtime.reason='webglcontextlost';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;runtime.hideCanvasWorld=false;
     (window as any).AbyssDrawSource?.();
     output.remove();canvas.classList.remove('rebirth-source');document.body.dataset.rebirth='canvas-fallback';
    },{once:true});
@@ -222,7 +276,7 @@
     try{nativeDraw(now);texture.source.update();runtime.frames++;
       runtime.fps=Math.min(60,Math.round(1000/Math.max(1,now-previous+32)));
       const label=document.querySelector('.gpu-label');if(label)label.textContent='PIXIJS · '+runtime.nativeUnits+' SPRITES';}
-    catch(e){runtime.status='fallback';runtime.reason='texture-upload-failed';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;
+    catch(e){runtime.status='fallback';runtime.reason='texture-upload-failed';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;runtime.hideCanvasWorld=false;
       (window as any).AbyssDrawSource?.();
       output.remove();canvas.classList.remove('rebirth-source');document.body.dataset.rebirth='canvas-fallback';
       const label=document.querySelector('.gpu-label');if(label)label.textContent='CANVAS 2D · COMPATIBLE';
@@ -230,7 +284,7 @@
    }
    requestAnimationFrame(tick);
    return true;
-  } catch(e) {runtime.status='fallback';runtime.reason='pixijs-init-failed';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;
+  } catch(e) {runtime.status='fallback';runtime.reason='pixijs-init-failed';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;runtime.hideCanvasWorld=false;
    (window as any).AbyssDrawSource?.();
    try{app?.destroy(true)}catch{}
    console.warn('PixiJS GPU initialization failed, preserving existing renderer:',e);
