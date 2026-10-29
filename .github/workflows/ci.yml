@@ -30,7 +30,7 @@ jobs:
           python3 -m pip install --user playwright==1.55.0
           python3 -m playwright install --with-deps chromium
       - name: Browser test of real PixiJS on HTTP
-        run: python3 qa-v070-browser.py && python3 qa-v075-browser.py && python3 qa-v080-browser.py && python3 qa-v081-browser.py && python3 qa-v082-browser.py && python3 qa-v083-browser.py
+        run: python3 qa-v070-browser.py && python3 qa-v075-browser.py && python3 qa-v080-browser.py && python3 qa-v081-browser.py && python3 qa-v082-browser.py && python3 qa-v083-browser.py && python3 qa-v084-browser.py
       - name: Attach review site, not publish
         if: always()
         uses: actions/upload-artifact@v4

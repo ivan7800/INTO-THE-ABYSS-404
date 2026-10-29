@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const js=fs.readFileSync('pixel-art.js','utf8'),pix=fs.readFileSync('src/pixi-layer.ts','utf8'),g=fs.readFileSync('src/game.ts','utf8');
-assert.equal(require('./package.json').version,'0.83.0');
+assert.ok(['0.83.0','0.84.0'].includes(require('./package.json').version));
 assert.match(js,/function monster\(/);assert.match(js,/monsterCache/);
 assert.match(pix,/runtime.monsterSprites/);assert.match(pix,/runtime.damageReactions/);
 assert.match(pix,/runtime.attackAnimations/);assert.match(pix,/turnChanged/);
