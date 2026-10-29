@@ -8,5 +8,5 @@ assert.match(gpu,/nativeDraw\(now\)/);assert.match(gpu,/runtime\.nativeUnits/);
 assert.match(gpu,/texture\.source\.update\(\)/);
 assert.match(fs.readFileSync('game.js','utf8'),/into-the-abyss\.v0\.8\.save/);
 for(const name of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.statSync(name).size>100);
-assert.match(fs.readFileSync('index.html','utf8'),/REBIRTH 0\.(75|80)/);
+assert.match(fs.readFileSync('index.html','utf8'),/REBIRTH 0\.(75|80|81)/);
 console.log('PASS v075 native sprites, grid decoration, preservation of tactical saves and launchers');
