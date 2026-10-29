@@ -4,7 +4,7 @@
  * not a homemade renderer masquerading as PixiJS. No external CDN is required.
  */
 (() => {
- type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics?:new()=>any;Container:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
+ type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics:new()=>any;Container:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
  type Scene={corruption:number;sector:number;quality:'lite'|'full';lights:{x:number;y:number}[]};
  const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,fps:0};
  const w=window as Window & {PIXI?:PixiGlobal;AbyssPixi?:typeof runtime};
