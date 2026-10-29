@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict'),cp=require('node:child_process');
+const a=fs.readFileSync('src/port-art.ts','utf8'),p=fs.readFileSync('src/pixi-layer.ts','utf8'),g=fs.readFileSync('src/game.ts','utf8');
+assert.equal(require('./package.json').version,'0.80.0');
+assert.match(a,/AbyssPortArt/);assert.match(a,/create:make/);
+assert.match(p,/portTileSprites/);assert.match(p,/portBuildingSprites/);
+assert.match(p,/nativeBuildings/);assert.match(g,/hideCanvasPort/);
+assert.match(g,/into-the-abyss\.v0\.8\.save/);
+assert.match(fs.readFileSync('index.html','utf8'),/dist\/port-art\.js/);
+for(const file of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.existsSync(file));
+console.log('PASS v080 native port tile sprites, building sprites and guarded tactical save contract');

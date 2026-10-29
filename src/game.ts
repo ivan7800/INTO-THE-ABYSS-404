@@ -232,7 +232,12 @@ const project=(x,y)=>({x:ORIGIN_X+(x-y)*ISO_W/2,y:ORIGIN_Y+(x+y)*ISO_H/2});
  })),
  threats:state.intent.map((i:any)=>({x:i.x,y:i.y})),
  rifts:state.rifts.map((r:any)=>({x:r.x,y:r.y})),
- cursor:cursorActive?{...cursorCell}:null
+ cursor:cursorActive?{...cursorCell}:null,
+ buildings:state.buildings.filter((b:any)=>b.hp>0).map((b:any)=>({x:b.x,y:b.y,hp:b.hp})),
+ rocks:state.rocks.map((r:any)=>({x:r.x,y:r.y})),
+ objective:state.objective&&!state.objectiveDone?{...state.objective}:null,
+ omen:state.omen?{...state.omen}:null,
+ reachable:(()=>{const u=state.units.find((a:any)=>a.id===state.selected&&a.hp>0&&a.side==='ally');return u&&!u.moved&&state.mode==='move'?[...pathCells(u).keys()]:[]})()
 });
 
 const unproject=(px,py)=>{const u=(px-ORIGIN_X)/(ISO_W/2),v=(py-ORIGIN_Y)/(ISO_H/2);return {x:Math.floor((u+v)/2),y:Math.floor((v-u)/2)}};
@@ -387,8 +392,8 @@ for(let depth=0;depth<=14;depth++){for(let x=0;x<8;x++){let y=depth-x;if(y<0||y>
 // Quiet, even ground pattern: threats and movement colors remain legible.
 drawSectorGround(p,x,y);window.AbyssEnvironment?.paint(ctx,'tile',p,campaign.sector,(x*7+y*13)%4);
 if(rift)portal(p);
-const b=building(x,y);if(b)house(p,b);
-if(state.rocks.some(r=>r.x===x&&r.y===y))rock(p);
+const b=building(x,y);if(b&&!(window.AbyssPixi?.hideCanvasPort&&campaign.sector===0))house(p,b);
+if(state.rocks.some(r=>r.x===x&&r.y===y)&&!(window.AbyssPixi?.hideCanvasPort&&campaign.sector===0))rock(p);
 const u=at(x,y);if(u&&!window.AbyssPixi?.hideCanvasUnits){unitIcon(p,u);if(u.side==='ally'&&u.id===state.selected){ctx.save();ctx.strokeStyle='#f3d997';ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(p.x,p.y+5,25,12,0,0,Math.PI*2);ctx.stroke();ctx.restore()}}
 if(threat){ctx.strokeStyle='#ffa6a1';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,16,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#ffe5c6';ctx.font='bold 15px monospace';ctx.textAlign='center';ctx.fillText('!',p.x,p.y+5)}
 }}

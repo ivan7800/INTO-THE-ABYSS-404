@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.join(__dirname,'..'),dest=path.join(root,'_site');
 const primary=['index.html','style.css','rebirth.css','game.js','environment-art.js','pixel-art.js','.nojekyll'];
-const scripts=['art','creatures','bestiary','cinematics','atmosphere','weather','panorama','guidance','rebirth','pixi-layer'].map(n=>'dist/'+n+'.js');
+const scripts=['art','creatures','bestiary','cinematics','atmosphere','weather','panorama','guidance','rebirth','pixi-layer','port-art'].map(n=>'dist/'+n+'.js');
 const vendor=['vendor/pixi.min.js','vendor/PIXIJS-LICENSE.txt'];
 const all=[...primary,...scripts,...vendor];
 for(const rel of all){

@@ -6,7 +6,7 @@
 (() => {
  type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics:new()=>any;Container:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
  type Scene={corruption:number;sector:number;quality:'lite'|'full';lights:{x:number;y:number}[]};
- const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,fps:0};
+ const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,fps:0};
  const w=window as Window & {PIXI?:PixiGlobal;AbyssPixi?:typeof runtime};
  w.AbyssPixi=runtime;
  async function activate(pixi:PixiGlobal){
@@ -25,6 +25,26 @@
    app.stage.addChild(sprite);
 
    // GPU-native isometric details and independently animated PIXI.Sprite units.
+   
+   const portTiles=new pixi.Container(),portBuildings=new pixi.Container();
+   portBuildings.sortableChildren=true;
+   app.stage.addChild(portTiles,portBuildings);
+   const portTileSprites:any[]=[],portBuildingSprites=new Map<string,any>(),portTextures=new Map<string,any>();
+   const portTexture=(kind:'tile'|'building'|'rock',variant:number,hp:number)=>{
+    const key=kind+':'+variant+':'+hp;
+    if(portTextures.has(key))return portTextures.get(key);
+    const canvas=(window as any).AbyssPortArt?.create(kind,variant,hp);
+    if(!canvas)throw Error('AbyssPortArt missing');
+    const t=pixi.Texture.from(canvas);t.source.scaleMode='nearest';
+    portTextures.set(key,t);return t;
+   };
+   for(let depth=0;depth<=14;depth++)for(let x=0;x<8;x++){
+    const y=depth-x;if(y<0||y>=8)continue;
+    const t=new pixi.Sprite(portTexture('tile',(x*7+y*13)%4,0));
+    const p={x:320+(x-y)*39,y:155+(x+y)*24};
+    t.anchor.set(.5,.5);t.position.set(p.x,p.y);portTiles.addChild(t);
+    portTileSprites.push({tile:t,x,y});
+   }
    const terrain=new pixi.Graphics();app.stage.addChild(terrain);
    const actorLayer=new pixi.Container();actorLayer.sortableChildren=true;app.stage.addChild(actorLayer);
    const actorCache=new Map<number,any>(),textureCache=new Map<string,any>();
@@ -41,6 +61,35 @@
     const view=(window as any).AbyssView?.();if(!view)throw Error('missing-native-view');
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
     terrain.clear();
+    const portActive=view.sector===0;
+    portTiles.visible=portActive;portBuildings.visible=portActive;
+    runtime.hideCanvasPort=portActive;
+    if(portActive){
+     const reach=new Set<string>(view.reachable||[]);
+     const threats=new Set<string>(view.threats.map((i:any)=>i.x+','+i.y));
+     const rifts=new Set<string>(view.rifts.map((i:any)=>i.x+','+i.y));
+     for(const t of portTileSprites){
+      const k=t.x+','+t.y;
+      t.tile.tint=reach.has(k)?0x60c4c0:rifts.has(k)?0xa86ab7:threats.has(k)?0xcc6e76:0xffffff;
+     }
+     const alive=new Set<string>();
+     const build=(kind:'building'|'rock',x:number,y:number,hp:number)=>{
+      const key=kind+':'+x+','+y;alive.add(key);
+      let s=portBuildingSprites.get(key);
+      if(!s){s=new pixi.Sprite(portTexture(kind,(x*3+y)%3,hp));s.anchor.set(.5,1);
+       portBuildings.addChild(s);portBuildingSprites.set(key,s);s.__hp=hp;}
+      if(s.__hp!==hp){s.texture=portTexture(kind,(x*3+y)%3,hp);s.__hp=hp}
+      const p=position(x,y);s.position.set(p.x,p.y+17);s.zIndex=(x+y)*10+x;
+     };
+     for(const b of view.buildings)build('building',b.x,b.y,b.hp);
+     for(const r of view.rocks)build('rock',r.x,r.y,0);
+     for(const [key,s] of portBuildingSprites)if(!alive.has(key)){
+       portBuildings.removeChild(s);s.destroy();portBuildingSprites.delete(key);
+     }
+     runtime.nativeBuildings=portBuildingSprites.size;runtime.portAtlas=portTextures.size;
+     if(view.objective){const p=position(view.objective.x,view.objective.y);terrain.circle(p.x,p.y,19).stroke({color:0xf9d37f,width:2.5,alpha:1})}
+     if(view.omen){const p=position(view.omen.x,view.omen.y);terrain.circle(p.x,p.y,14).stroke({color:0xe9c090,width:2,alpha:1})}
+    }
     for(let x=0;x<8;x++)for(let y=0;y<8;y++){
      const p=position(x,y);
      terrain.poly([p.x,p.y-18,p.x+33,p.y,p.x,p.y+18,p.x-33,p.y],true)
@@ -94,7 +143,7 @@
     for(const [id,a] of actorCache)if(!active.has(id)){
      a.holder.parent?.removeChild(a.holder);a.holder.destroy({children:true});actorCache.delete(id);
     }
-    runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66;
+    runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64:0);
    };
 
    // First genuinely native PixiJS object, drawn independently of Canvas.
@@ -113,7 +162,7 @@
    const output=app.canvas as HTMLCanvasElement;
    output.id='pixi-screen';output.setAttribute('aria-hidden','true');
    output.addEventListener('webglcontextlost',(event:Event)=>{
-    event.preventDefault();runtime.status='fallback';runtime.reason='webglcontextlost';runtime.hideCanvasUnits=false;
+    event.preventDefault();runtime.status='fallback';runtime.reason='webglcontextlost';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;
     (window as any).AbyssDrawSource?.();
     output.remove();canvas.classList.remove('rebirth-source');document.body.dataset.rebirth='canvas-fallback';
    },{once:true});
@@ -127,6 +176,7 @@
    const label=document.querySelector('.gpu-label');if(label)label.textContent='PIXIJS 8 · WEBGL';
    runtime.status='active';runtime.reason='';
    runtime.hideCanvasUnits=true;
+   runtime.hideCanvasPort=true;
    (window as any).AbyssDrawSource?.();
    let previous=-Infinity;
    const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
@@ -138,7 +188,7 @@
     try{nativeDraw(now);texture.source.update();runtime.frames++;
       runtime.fps=Math.min(60,Math.round(1000/Math.max(1,now-previous+32)));
       const label=document.querySelector('.gpu-label');if(label)label.textContent='PIXIJS · '+runtime.nativeUnits+' SPRITES';}
-    catch(e){runtime.status='fallback';runtime.reason='texture-upload-failed';runtime.hideCanvasUnits=false;
+    catch(e){runtime.status='fallback';runtime.reason='texture-upload-failed';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;
       (window as any).AbyssDrawSource?.();
       output.remove();canvas.classList.remove('rebirth-source');document.body.dataset.rebirth='canvas-fallback';
       const label=document.querySelector('.gpu-label');if(label)label.textContent='CANVAS 2D · COMPATIBLE';
@@ -146,7 +196,7 @@
    }
    requestAnimationFrame(tick);
    return true;
-  } catch(e) {runtime.status='fallback';runtime.reason='pixijs-init-failed';runtime.hideCanvasUnits=false;
+  } catch(e) {runtime.status='fallback';runtime.reason='pixijs-init-failed';runtime.hideCanvasUnits=false;runtime.hideCanvasPort=false;
    (window as any).AbyssDrawSource?.();
    try{app?.destroy(true)}catch{}
    console.warn('PixiJS GPU initialization failed, preserving existing renderer:',e);
