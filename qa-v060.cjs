@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process');
 const read=file=>fs.readFileSync(file,'utf8');
-assert.ok(['0.60.0','0.65.0','0.70.0','0.75.0','0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0'].includes(JSON.parse(read('package.json')).version));
+assert.ok(['0.60.0','0.65.0','0.70.0','0.75.0','0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0','0.92.0'].includes(JSON.parse(read('package.json')).version));
 assert.match(read('src/game.ts'),/function updateCellInspector/);
 assert.match(read('src/game.ts'),/function toggleKeyboardNavigation/);
 assert.match(read('src/game.ts'),/ev\.key==='Enter'/);

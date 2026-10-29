@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const game=fs.readFileSync('src/game.ts','utf8'),html=fs.readFileSync('index.html','utf8');
-assert.equal(require('./package.json').version,'0.91.0');
+assert.ok(['0.91.0','0.92.0'].includes(require('./package.json').version));
 assert.match(game,/Rescate del Expediente/);
 assert.match(game,/chooseEncounter\('recovery'\)/);
 assert.match(game,/state\.recovery\.resolved=true;state\.recovery\.success=true/);

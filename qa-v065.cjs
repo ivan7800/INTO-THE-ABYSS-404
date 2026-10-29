@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process'),vm=require('node:vm');
 const read=f=>fs.readFileSync(f,'utf8');
-assert.ok(['0.65.0','0.70.0','0.75.0','0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0'].includes(JSON.parse(read('package.json')).version));
+assert.ok(['0.65.0','0.70.0','0.75.0','0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0','0.92.0'].includes(JSON.parse(read('package.json')).version));
 const html=read('index.html'),game=read('src/game.ts');
 for(const file of ['src/weather.ts','src/panorama.ts','dist/weather.js','dist/panorama.js'])assert.ok(fs.existsSync(file),`missing ${file}`);
 for(const script of ['dist/weather.js','dist/panorama.js'])assert.ok(html.includes(`src="${script}"`),`no ${script}`);
