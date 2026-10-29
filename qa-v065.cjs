@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process'),vm=require('node:vm');
 const read=f=>fs.readFileSync(f,'utf8');
-assert.equal(JSON.parse(read('package.json')).version,'0.65.0');
+assert.ok(['0.65.0','0.70.0'].includes(JSON.parse(read('package.json')).version));
 const html=read('index.html'),game=read('src/game.ts');
 for(const file of ['src/weather.ts','src/panorama.ts','dist/weather.js','dist/panorama.js'])assert.ok(fs.existsSync(file),`missing ${file}`);
 for(const script of ['dist/weather.js','dist/panorama.js'])assert.ok(html.includes(`src="${script}"`),`no ${script}`);
@@ -28,8 +28,8 @@ for(let sector=0;sector<5;sector++){
 assert.equal(ops.filter(x=>x==='save').length,10);
 assert.equal(ops.filter(x=>x==='restore').length,10);
 assert.ok(ops.includes('rect')&&ops.includes('stroke'));
-assert.match(read('launch-local.py'),/REBIRTH_v065/);
-assert.match(read('launch-windows.ps1'),/REBIRTH_v065/);
-assert.match(read('launch-local.cjs'),/REBIRTH_v065/);
+assert.match(read('launch-local.py'),/REBIRTH_v0(?:65|70)/);
+assert.match(read('launch-windows.ps1'),/REBIRTH_v0(?:65|70)/);
+assert.match(read('launch-local.cjs'),/REBIRTH_v0(?:65|70)/);
 cp.execFileSync('bash',['-n','INICIAR-LINUX.sh']);
 console.log('PASS v0.65: 5 unique weather systems, deterministic reduced-motion fallback, panoramas, entrypoints, fixed-port launchers');

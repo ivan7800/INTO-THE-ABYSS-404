@@ -1,17 +1,15 @@
-/** Copy the official installed PixiJS v8 browser bundle for fully offline use.
- * Never download it at runtime. Version is pinned in package.json.
- */
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
-const root=path.resolve(__dirname,'..');
-const entry=path.join(root,'node_modules','pixi.js','dist','pixi.min.js');
-const dest=path.join(root,'vendor','pixi.min.js');
-if(!fs.existsSync(entry)){
- console.error('No se encuentra PixiJS 8 instalado. Ejecuta: npm install (con conexión)');process.exit(1);
-}
-fs.mkdirSync(path.dirname(dest),{recursive:true});fs.copyFileSync(entry,dest);
-const license=path.join(root,'node_modules','pixi.js','LICENSE');
-if(fs.existsSync(license))fs.copyFileSync(license,path.join(root,'vendor','PIXIJS-LICENSE.txt'));
-const bytes=fs.statSync(dest).size;
-if(bytes<10000){console.error('El bundle no parece válido.');process.exit(1)}
-console.log(`PixiJS incorporado en vendor/pixi.min.js (${bytes} bytes). El juego ya es offline.`);
+const root=path.resolve(__dirname,'..'),pkg=require('../package.json');
+const version=pkg.dependencies['pixi.js'],pkgdir=path.join(root,'node_modules','pixi.js');
+const manifest=path.join(pkgdir,'package.json');
+if(!fs.existsSync(manifest))throw Error('PixiJS missing. Run npm install.');
+const actual=JSON.parse(fs.readFileSync(manifest,'utf8')).version;
+if(actual!==version)throw Error('Wrong PixiJS version: '+actual+' expected '+version);
+const src=path.join(pkgdir,'dist','pixi.min.js'),license=path.join(pkgdir,'LICENSE');
+if(!fs.existsSync(src)||!fs.existsSync(license))throw Error('Official PixiJS bundle or license missing');
+if(fs.statSync(src).size<100000)throw Error('Suspiciously small PixiJS distribution');
+const dest=path.join(root,'vendor');fs.mkdirSync(dest,{recursive:true});
+fs.copyFileSync(src,path.join(dest,'pixi.min.js'));
+fs.copyFileSync(license,path.join(dest,'PIXIJS-LICENSE.txt'));
+console.log('PASS: genuine PixiJS '+actual+' and its license vendored offline.');

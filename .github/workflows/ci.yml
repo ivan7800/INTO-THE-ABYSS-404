@@ -1,0 +1,40 @@
+name: INTO THE ABYSS · CI review
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: abyss-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install exact versions
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Vendor official PixiJS with license
+        run: npm run vendor:pixi
+      - name: TypeScript and tactical regression
+        run: npm run check
+      - name: Package only distributable assets
+        run: npm run package:site && npm run verify:site
+      - name: Install Playwright Chromium
+        run: |
+          python3 -m pip install --user playwright==1.55.0
+          python3 -m playwright install --with-deps chromium
+      - name: Browser test of real PixiJS on HTTP
+        run: python3 qa-v070-browser.py
+      - name: Attach review site, not publish
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: abyss-v070-review
+          path: _site/
+          retention-days: 14

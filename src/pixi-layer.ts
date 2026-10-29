@@ -4,9 +4,9 @@
  * not a homemade renderer masquerading as PixiJS. No external CDN is required.
  */
 (() => {
- type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
+ type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics?:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
  type Scene={corruption:number;sector:number;quality:'lite'|'full';lights:{x:number;y:number}[]};
- const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0'};
+ const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0};
  const w=window as Window & {PIXI?:PixiGlobal;AbyssPixi?:typeof runtime};
  w.AbyssPixi=runtime;
  async function activate(pixi:PixiGlobal){
@@ -23,8 +23,25 @@
    const sprite=new pixi.Sprite(texture);
    sprite.texture.source.scaleMode='nearest';
    app.stage.addChild(sprite);
+   // First genuinely native PixiJS object, drawn independently of Canvas.
+   if(pixi.Graphics){
+    const reticle=new pixi.Graphics();app.stage.addChild(reticle);
+    const draw=(event:PointerEvent)=>{
+     const rect=canvas.getBoundingClientRect();if(!rect.width||!rect.height)return;
+     const x=(event.clientX-rect.left)*canvas.width/rect.width;
+     const y=(event.clientY-rect.top)*canvas.height/rect.height;
+     reticle.clear().circle(x,y,9).stroke({color:0x9fdfce,width:1.5,alpha:.85});
+    };
+    canvas.addEventListener('pointermove',draw,{passive:true});
+    canvas.addEventListener('pointerleave',()=>reticle.clear(),{passive:true});
+    runtime.nativeObjects=1;
+   }
    const output=app.canvas as HTMLCanvasElement;
    output.id='pixi-screen';output.setAttribute('aria-hidden','true');
+   output.addEventListener('webglcontextlost',(event:Event)=>{
+    event.preventDefault();runtime.status='fallback';runtime.reason='webglcontextlost';
+    output.remove();canvas.classList.remove('rebirth-source');document.body.dataset.rebirth='canvas-fallback';
+   },{once:true});
    container.append(output);
    // Only replace the existing GPU compositor after successful initialization.
    window.AbyssGPU?.pause?.();
