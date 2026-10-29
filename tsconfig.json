@@ -22,6 +22,7 @@
     "src/panorama.ts",
     "src/pixi-layer.ts",
     "src/globals.d.ts",
-    "src/port-art.ts"
+    "src/port-art.ts",
+    "src/port-atmosphere.ts"
   ]
 }

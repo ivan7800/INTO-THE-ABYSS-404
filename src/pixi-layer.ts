@@ -6,7 +6,7 @@
 (() => {
  type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics:new()=>any;Container:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
  type Scene={corruption:number;sector:number;quality:'lite'|'full';lights:{x:number;y:number}[]};
- const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,portProps:0,fps:0};
+ const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,portProps:0,atmosphereFrames:0,weatherParticles:0,fps:0};
  const w=window as Window & {PIXI?:PixiGlobal;AbyssPixi?:typeof runtime};
  w.AbyssPixi=runtime;
  async function activate(pixi:PixiGlobal){
@@ -62,6 +62,8 @@
    placeProp('lighthouse',563,278,0);
    const terrain=new pixi.Graphics();app.stage.addChild(terrain);
    const actorLayer=new pixi.Container();actorLayer.sortableChildren=true;app.stage.addChild(actorLayer);
+   const atmosphere=(window as any).AbyssPortAtmosphere?.attach(pixi,app.stage);
+   if(!atmosphere)throw Error('missing-port-atmosphere');
    const actorCache=new Map<number,any>(),textureCache=new Map<string,any>();
    const position=(x:number,y:number)=>({x:320+(x-y)*39,y:155+(x+y)*24});
    const pixiSprite=(type:string,frame:number,injured:boolean)=>{
@@ -163,6 +165,8 @@
     for(const [id,a] of actorCache)if(!active.has(id)){
      a.holder.parent?.removeChild(a.holder);a.holder.destroy({children:true});actorCache.delete(id);
     }
+    atmosphere.tick(now,view,reduced);
+    const env=atmosphere.stats();runtime.atmosphereFrames=env.frames;runtime.weatherParticles=env.particles;
     runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64+portProps.length:0);
    };
 

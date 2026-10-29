@@ -227,6 +227,7 @@ const TILE_RX=34,TILE_RY=19; // deliberate negative space between tactical diamo
 const project=(x,y)=>({x:ORIGIN_X+(x-y)*ISO_W/2,y:ORIGIN_Y+(x+y)*ISO_H/2});
 (window as any).AbyssView=()=>({
  sector:campaign.sector,selected:state.selected,phase:state.phase,
+ corruption:state.corruption,quality:visualQuality,
  units:state.units.filter((u:any)=>u.hp>0).map((u:any)=>({
   id:u.id,x:u.x,y:u.y,hp:u.hp,max:u.max,side:u.side,type:u.type,stunned:!!u.stunned
  })),
