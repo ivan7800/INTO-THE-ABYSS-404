@@ -143,5 +143,60 @@ function paint(ctx,p,u,time,reduced){if(!ctx?.drawImage)return false;const frame
  ctx.drawImage(pic,Math.round(p.x-width/2),Math.round(p.y-height+8),width,height);
  ctx.restore();return true;
 }
-window.AbyssPixel={paint,sprite,types:['pen','her','viu','eng','vig','lar','boss','leviathan','seer','anchor','weaver','stalker','herald']};
+
+// REBIRTH 0.83: native-ready, original 48x64 horror silhouettes.
+// Pure graphics, cached by pose; never alters tactical data.
+const monsterCache=new Map();
+function monster(type,frame=0,hurt=false,attack=false){
+ const key=[type,frame,hurt,attack].join(':');
+ if(monsterCache.has(key))return monsterCache.get(key);
+ const c=document.createElement('canvas');c.width=48;c.height=64;
+ const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+ const R=(x,y,w,h,color)=>{g.fillStyle=color;g.fillRect(x,y,w,h)};
+ const L=(pts,col)=>{g.fillStyle=col;g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill()};
+ const bright=hurt?'#f1a0a9':'#a4c2b5',flesh=hurt?'#a65b74':'#624c68',ink='#0a1725',bone='#c8a9a4';
+ const k=(frame%4),s=attack?6:0,wig=(frame%2?2:-2);
+ // Body planes are distinct by species (stalker, seer, weaver, anchor and larva).
+ if(type==='stalker'){
+  L([[7,24],[12,13],[24,5],[36,14],[41,31],[32,54],[17,53]],ink);
+  L([[14,22],[20,12],[29,14],[35,31],[26,48],[18,39]],flesh);
+  for(let i=0;i<3;i++){R(3+i*6,33+i*6,4,17,bone);R(38-i*6,30+i*6,4,18,bright)}
+  R(16,22,5,3,bright);R(29,23,5,3,bright);R(21,34,6,6,ink);
+ }else if(type==='seer'){
+  L([[24,2],[38,19],[34,52],[12,54],[9,21]],ink);
+  L([[24,7],[33,22],[28,49],[18,47],[15,24]],flesh);
+  for(let i=0;i<3;i++){R(7+i*12,11+(i%2)*5,3,24,bright);R(16+i*7,28,3,7,bone)}
+  R(16,19,16,13,bone);R(21,22,8,9,ink);R(24,23,2,6,'#f5d78c');
+ }else if(type==='weaver'){
+  L([[23,7],[37,17],[29,48],[17,50],[8,21]],flesh);
+  for(let i=0;i<4;i++){const x=3+i*12;L([[x,22],[x+wig,40],[x-4,61],[x+6,53],[x+7,22]],i%2?bone:ink)}
+  R(19,22,10,9,ink);R(22,24,4,5,'#e3c6ad');
+ }else if(type==='anchor'){
+  L([[24,0],[39,16],[34,54],[15,53],[9,15]],ink);
+  L([[24,5],[33,19],[29,50],[18,46],[16,18]],flesh);
+  for(const y of [21,31,41]){R(17,y,15,3,bone);R(22,y+3,6,2,ink)}
+  R(2,35,15,5,bright);R(32,35,14,5,bright);
+ }else if(type==='lar'){
+  L([[23,10],[39,22],[37,40],[29,49],[12,48],[8,30]],flesh);
+  for(let i=0;i<6;i++){R(5+i*7,36+(i%3)*2,4,20+(i%2)*3,ink);R(6+i*7,50+(i%3)*2,2,5,bone)}
+  R(15,22,6,4,bright);R(28,22,6,4,bright);
+ }else{
+  L([[24,2],[42,15],[45,38],[34,54],[10,52],[3,34],[8,12]],ink);
+  L([[24,7],[37,19],[36,43],[26,51],[14,43],[12,18]],flesh);
+  for(let i=0;i<5;i++){R(7+i*8,4+(i%2)*5,3,16,bright);R(8+i*7,40,4,18,bone)}
+  R(13,25,6,4,bright);R(29,25,6,4,bright);
+ }
+ // Bioluminescent scars and independently animated eldritch appendages.
+ for(let i=0;i<4;i++){const x=12+i*7;R(x,14+((i+k)%4)*6,2,2,i%2?'#a987bd':'#d8ba8e')}
+ if(attack){
+  const off=k%2?1:0;
+  L([[24,30],[20-s,36],[24,53],[28+s,36]],'#f3b67f');
+  R(21,33,6,10,'#ffe7bd');
+  R(2+off,14,4,19,bright);R(42-off,11,4,22,bright);
+ }
+ if(hurt){R(12,33,8,3,'#ffb7ae');R(29,20,9,3,'#ffb7ae');}
+ monsterCache.set(key,c);return c;
+}
+
+window.AbyssPixel={paint,sprite,monster,monsterTypes:['stalker','seer','weaver','anchor','lar','vig','eng','herald','boss','leviathan'],types:['pen','her','viu','eng','vig','lar','boss','leviathan','seer','anchor','weaver','stalker','herald']};
 })();
