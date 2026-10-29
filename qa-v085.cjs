@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),read=f=>fs.readFileSync(f,'utf8');
+assert.equal(require('./package.json').version,'0.85.0');
+const a=read('src/soundscape.ts');
+for(const part of ['setEnabled','setSector','stopDrones','effect','sync','tick'])assert.ok(a.includes(part));
+assert.match(read('src/game.ts'),/AbyssSoundscape\.setEnabled/);
+assert.match(read('src/game.ts'),/into-the-abyss\.v0\.8\.save/);
+assert.match(read('index.html'),/dist\/soundscape\.js/);
+for(const f of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.existsSync(f));
+console.log('PASS v0.85 sector-based soundscape, opt-in mute and saved-game compatibility');

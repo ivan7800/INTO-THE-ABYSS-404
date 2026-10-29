@@ -229,6 +229,7 @@
      a.holder.parent?.removeChild(a.holder);a.holder.destroy({children:true});actorCache.delete(id);
     }
     atmosphere.tick(now,view,reduced);
+    (window as any).AbyssSoundscape?.tick(now,view);
     const env=atmosphere.stats();runtime.atmosphereFrames=env.frames;runtime.weatherParticles=env.particles;
     runtime.monsterSprites=view.units.filter((u:any)=>u.side!=='ally').length;
     runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64+portProps.length:biomeActive?biomeBuildingCache.size+64:0);
