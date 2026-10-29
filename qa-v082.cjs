@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const read=x=>fs.readFileSync(x,'utf8');
-assert.ok(['0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0'].includes(require('./package.json').version));
+assert.ok(['0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0','0.92.0'].includes(require('./package.json').version));
 assert.match(read('src/port-atmosphere.ts'),/AbyssPortAtmosphere/);
 assert.match(read('src/port-atmosphere.ts'),/prefers-reduced-motion|reduced/);
 assert.match(read('src/pixi-layer.ts'),/atmosphere.tick\(now,view,reduced\)/);

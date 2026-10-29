@@ -18,6 +18,7 @@ try:
   assert before['monsters']>=1,before
   page.locator('#end').click()
   page.wait_for_function("state.turn>1",timeout=12000)
+  page.wait_for_function("AbyssPixi.attackAnimations>=1",timeout=12000)
   result=page.evaluate("({attacks:AbyssPixi.attackAnimations,monsters:AbyssPixi.monsterSprites,turn:state.turn})")
   assert result['attacks']>=1,result
   saved=page.evaluate("JSON.stringify({turn:state.turn,sector:campaign.sector,integrity:state.integrity})")
