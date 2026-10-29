@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const src=fs.readFileSync('src/game.ts','utf8'),gpu=fs.readFileSync('src/pixi-layer.ts','utf8');
-assert.ok(['0.75.0','0.80.0'].includes(require('./package.json').version));
+assert.ok(['0.75.0','0.80.0','0.81.0'].includes(require('./package.json').version));
 assert.match(src,/AbyssView=\(\)=>/);assert.match(src,/hideCanvasUnits/);
 assert.match(gpu,/new pixi\.Container\(\)/);assert.match(gpu,/new pixi\.Sprite\(/);
 assert.match(gpu,/nativeDraw\(now\)/);assert.match(gpu,/runtime\.nativeUnits/);
