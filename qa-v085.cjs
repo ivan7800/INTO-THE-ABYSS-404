@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),read=f=>fs.readFileSync(f,'utf8');
-assert.ok(['0.85.0','0.90.0'].includes(require('./package.json').version));
+assert.ok(['0.85.0','0.90.0','0.91.0'].includes(require('./package.json').version));
 const a=read('src/soundscape.ts');
 for(const part of ['setEnabled','setSector','stopDrones','effect','sync','tick'])assert.ok(a.includes(part));
 assert.match(read('src/game.ts'),/AbyssSoundscape\.setEnabled/);
