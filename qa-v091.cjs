@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const game=fs.readFileSync('src/game.ts','utf8'),html=fs.readFileSync('index.html','utf8');
+assert.equal(require('./package.json').version,'0.91.0');
+assert.match(game,/Rescate del Expediente/);
+assert.match(game,/chooseEncounter\('recovery'\)/);
+assert.match(game,/state\.recovery\.resolved=true;state\.recovery\.success=true/);
+assert.match(game,/state\.recovery\.resolved=true;state\.recovery\.success=false/);
+assert.match(game,/state\.turn>state\.recovery\.deadline/);
+assert.match(html,/id="encounter-recovery"/);
+assert.match(game,/into-the-abyss\.v0\.8\.save/);
+for(const file of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.existsSync(file));
+console.log('PASS v0.91 time-limited rescue, once-only reward/penalty, original saves and launchers');
