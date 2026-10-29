@@ -115,11 +115,12 @@ state={turn:1,maxTurns:cfg.turns,phase:'player',selected:1,mode:'move',integrity
 // Their effects are deterministic, saved, and their new threats are telegraphed.
 const ENCOUNTERS={
  base:{name:'Patrulla ordinaria',detail:'Disposición original del sector.'},
+ vigil:{name:'Vigilia del Umbral',detail:'Blindaje adicional para todos; +15 % de corrupción.'},
  siege:{name:'Asedio abisal',detail:'Aparece un refuerzo enemigo adelantado.'},
  tide:{name:'Marea negra',detail:'Una grieta adicional amenaza la retaguardia.'}
 };
 function chooseEncounter(mode){
- if(!['siege','tide'].includes(mode)||state.phase!=='player'||state.turn!==1||state.encounterLocked||
+ if(!['siege','tide','vigil'].includes(mode)||state.phase!=='player'||state.turn!==1||state.encounterLocked||
     metrics().moves||metrics().attacks||metrics().specials||metrics().turnsResolved)return false;
  if(mode==='siege'){
   const positions=[{x:0,y:2},{x:7,y:2},{x:0,y:4},{x:7,y:4}];
@@ -129,6 +130,10 @@ function chooseEncounter(mode){
   const extra=enemy(types[campaign.sector],pos.x,pos.y,900+campaign.sector);
   state.units.push(extra);
   note(`PROTOCOLO ASEDIO · ${extra.name} emerge en (${pos.x+1}, ${pos.y+1}).`);
+  }else if(mode==='vigil'){
+  state.corruption=Math.min(100,state.corruption+15);
+  for(const ally of alive('ally'))ally.shield=(ally.shield||0)+1;
+  note('VIGILIA · Cada Custodio obtiene un blindaje; la corrupción aumenta un 15 %.');
  }else{
   const positions=[{x:2,y:5},{x:6,y:5},{x:1,y:5},{x:7,y:5}];
   const pos=positions.find(p=>!obstacle(p.x,p.y)&&!state.rifts.some(r=>r.x===p.x&&r.y===p.y));
@@ -144,7 +149,7 @@ function chooseEncounter(mode){
 function updateEncounterHUD(){
  const box=document.querySelector('#encounterStatus');
  if(box)box.textContent=`ENCUENTRO · ${ENCOUNTERS[state.encounterMode||'base'].name} — ${ENCOUNTERS[state.encounterMode||'base'].detail}`;
- for(const id of ['siege','tide']){
+ for(const id of ['siege','tide','vigil']){
   const btn=document.querySelector('#encounter-'+id) as HTMLButtonElement|null;
   if(btn){btn.disabled=state.phase!=='player'||state.turn!==1||state.encounterLocked||metrics().moves>0||metrics().attacks>0||metrics().specials>0;btn.setAttribute?.('aria-pressed',String(state.encounterMode===id));}
  }
@@ -513,7 +518,7 @@ $('#touchMode').addEventListener('click',()=>modeBtn.click());$('#touchSpecial')
 $('#special').addEventListener('click',special);$('#fortify').addEventListener('click',()=>chooseEvent('fortify'));$('#seal').addEventListener('click',()=>chooseEvent('seal'));
 $('#sound').addEventListener('click',async()=>{audioEnabled=!audioEnabled;if(window.AbyssSoundscape)audioEnabled=await window.AbyssSoundscape.setEnabled(audioEnabled);updateAudioLabel();if(audioEnabled)sound('select')});
 $('#pilot').addEventListener('change',ev=>{const u=alive('ally').find(a=>a.id===state.selected),pilot=ev.target.value;if(!u||state.phase!=='player'||u.moved||u.acted||!PILOTS[pilot]||alive('ally').some(a=>a.id!==u.id&&a.pilot===pilot))return render();const old=PILOTS[u.pilot]?.ability;u.pilot=pilot;campaign.pilots[u.id-1]=pilot;const next=PILOTS[pilot].ability;if(old==='scout')u.range--;if(old==='armor'){u.max--;u.hp=Math.min(u.hp,u.max)}if(next==='scout')u.range++;if(next==='armor'){u.max++;u.hp++}u.shield=next==='shield'?1:0;u.attackBonus=next==='reach'?1:0;u.burstUsed=false;note(`${u.name}: piloto asignado, ${PILOTS[pilot].name}.`);render()});
-$('#encounter-siege').addEventListener('click',()=>chooseEncounter('siege'));$('#encounter-tide').addEventListener('click',()=>chooseEncounter('tide'));$('#exportMetrics').addEventListener('click',exportMetrics);
+$('#encounter-siege').addEventListener('click',()=>chooseEncounter('siege'));$('#encounter-tide').addEventListener('click',()=>chooseEncounter('tide'));$('#encounter-vigil')?.addEventListener('click',()=>chooseEncounter('vigil'));$('#exportMetrics').addEventListener('click',exportMetrics);
 // v0.50: portable save backup. Localhost port is fixed to keep browser origin stable.
 function exportSaveFile(){
  const data={version:8,campaign,state};if(!validSave(data)){$('#saveStatus').textContent='ERROR: PARTIDA ACTUAL NO VÁLIDA';return false}
