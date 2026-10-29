@@ -41,7 +41,20 @@ namespace AbyssTactics {
     ];
     if(!candidates.length)return null;
     const danger=(p:Cell)=>s.intent.some(i=>i.x===p.x&&i.y===p.y)?1:0;
-    const score=(t:(typeof candidates)[number])=>distance(e,t)*10+(t.kind==='building'?45:0)+(t.hp===1?-3:0)+danger(t)*5;
+    const specialist=(t:(typeof candidates)[number])=>{
+      if(e.type==='stalker'&&t.kind==='unit'){
+        const allies=s.units.filter(u=>u.side==='ally'&&u.hp>0&&(u.x!==t.x||u.y!==t.y));
+        return allies.every(u=>distance(u,t)>2)?-18:0;
+      }
+      if(e.type==='seer'&&t.kind==='unit'){
+        const ally=s.units.find(u=>u.side==='ally'&&u.x===t.x&&u.y===t.y);
+        return ally?.shield?-12:0;
+      }
+      if(['anchor','boss','leviathan'].includes(e.type)&&t.kind==='building')return -22;
+      if(e.type==='weaver'&&t.kind==='unit')return -8;
+      return 0;
+    };
+    const score=(t:(typeof candidates)[number])=>distance(e,t)*10+(t.kind==='building'?45:0)+(t.hp===1?-3:0)+danger(t)*5+specialist(t);
     candidates.sort((a,b)=>score(a)-score(b)||a.y-b.y||a.x-b.x);
     const target=candidates[0];
     const attack:Attack=e.type==='anchor'?'anchor':e.type==='stalker'?'drain':e.type==='vig'?'beam':e.type==='lar'?'corrupt':e.type==='herald'?'chorus':e.type==='boss'?'rupture':e.type==='leviathan'?(e.hp<=6?'cataclysm':'rupture'):e.type==='weaver'?'web':e.type==='seer'?'vision':'claw';
