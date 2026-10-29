@@ -1,0 +1,4 @@
+{
+  "compilerOptions": {"target":"ES2020","module":"none","lib":["ES2020","DOM","DOM.Iterable"],"strict":false,"skipLibCheck":true,"rootDir":"src","outDir":"build-tmp","noEmitOnError":true},
+  "files":["src/globals.d.ts","src/tactics.ts","src/game.ts"]
+}

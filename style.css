@@ -1,0 +1,49 @@
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#081019;color:#e9e2d1}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#24414a 0%,#0c1b27 41%,#070e16 100%)}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.11;background:repeating-linear-gradient(0deg,transparent 0 3px,#698991 4px 4px)}main{max-width:1250px;margin:auto;padding:22px 20px 30px}header{text-align:center;padding:16px 0 15px}.eyebrow,.panel-kicker,.screen-top,.strap,footer,.stamp{font-family:ui-monospace,Consolas,monospace;letter-spacing:.13em;font-size:11px}.eyebrow{color:#b9bdaf;display:flex;justify-content:center;align-items:center;gap:12px}.signal{height:8px;width:8px;display:inline-block;border-radius:100%;background:#cb796d;box-shadow:0 0 18px #f97b78;animation:signal 2.3s ease-in-out infinite}@keyframes signal{50%{opacity:.45}}h1{font-family:Georgia,serif;font-weight:normal;font-size:clamp(38px,7.5vw,82px);letter-spacing:.055em;margin:10px 0 0;text-shadow:0 4px 22px #000b}h1 em{font-weight:normal;color:#d0ae7d}header p{font-family:Georgia,serif;font-style:italic;font-size:17px;color:#aabfc0;margin:6px 0 9px}.strap{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #55717a5c;border-bottom:1px solid #55717a5c;color:#91a9af;padding:13px 0;margin-bottom:20px}.strap strong{color:#dbc69f;font-family:Georgia,serif;letter-spacing:.02em;font-size:16px;font-weight:normal}.layout{display:grid;grid-template-columns:minmax(0,660px) minmax(285px,1fr);align-items:start;gap:22px}.battle{min-width:0}.screen-top{display:flex;justify-content:space-between;color:#b9b6a8;background:#15252e;padding:11px 13px;border:1px solid #42535b;border-bottom:0}canvas{display:block;width:100%;height:auto;border:1px solid #56717d;box-shadow:0 18px 58px #0009;touch-action:manipulation;cursor:crosshair;background:#10202a}.legend{display:flex;flex-wrap:wrap;gap:17px;justify-content:center;background:#101e29;border:1px solid #415862;border-top:0;padding:13px;font-family:monospace;font-size:12px;color:#d4dbd5}.dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}.ally{background:#91d7c8}.enemy{background:#c85f78}.hazard{background:#ac6fba}.threat{background:#eaa097}.hint{font-size:13px;color:#abbcc0;line-height:1.65;margin:16px 0}.hint b{color:#e0c898}aside{background:linear-gradient(140deg,#1a2b33,#101d27 70%);border:1px solid #4b666b;box-shadow:0 15px 55px #0005;padding:23px;min-width:0}.panel-kicker{color:#85adad}.separator{height:1px;background:#41555e;margin:19px 0}h2{font-family:Georgia,serif;font-size:25px;font-weight:normal;color:#e4cda3;margin:7px 0 18px}h3{font-family:monospace;font-size:11px;letter-spacing:.16em;color:#caac80;margin:22px 0 11px}#status{color:#d6e4dc;font-weight:700;margin-bottom:14px}#stats,#unit{line-height:1.8;color:#c2cfd0;font-size:14px}#unit{min-height:55px}button{display:block;width:100%;border:1px solid #709396;color:#f0eee4;background:#31535a;padding:15px;margin:12px 0;font-family:monospace;letter-spacing:.07em;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}button:hover:not(:disabled){background:#4a7980;transform:translateY(-1px)}button:focus-visible{outline:3px solid #ecd39a;outline-offset:3px}button:disabled{opacity:.4;cursor:not-allowed}button.primary{background:#7b5c47;border-color:#c8a179;display:flex;justify-content:space-between}button.primary:hover:not(:disabled){background:#987355}button.secondary{background:#192b35;border-color:#486670;color:#b3c4c5}#help{min-height:44px;margin:8px 0 19px}#log{max-height:190px;overflow:auto;border-top:1px solid #42545b;font-size:12px;color:#c0caca}#log p{border-bottom:1px solid #35434b;margin:0;padding:10px 3px}.stamp{margin-top:22px;border-top:1px solid #41545d;padding-top:17px;color:#789399;font-size:9px;display:flex;justify-content:space-between}footer{text-align:center;margin-top:33px;color:#6e8c96;font-size:10px}@media(max-width:900px){.layout{grid-template-columns:1fr}.battle{max-width:660px;width:100%;margin:auto}aside{max-width:660px;width:100%;margin:auto}.strap span{display:none}.strap{justify-content:center;text-align:center}}@media(max-width:520px){main{padding:12px 9px 25px}.screen-top{font-size:8px;letter-spacing:0}.legend{gap:9px;font-size:10px}.eyebrow{font-size:9px}.strap strong{font-size:13px}aside{padding:15px}h1{font-size:clamp(35px,10vw,54px)}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+.campaign-status{color:#dfc79a;font:12px/1.7 ui-monospace,monospace;margin:12px 0;padding:12px;border:1px solid #55605c;background:#15242b}button[hidden]{display:none!important}
+
+.story{border-left:3px solid #ad8667;padding:12px 13px;margin-top:14px;background:#1e2b32;color:#ded2b8;font:italic 13px/1.65 Georgia,serif}.save-status{font:10px/1.6 ui-monospace,monospace;color:#96bcb3;margin:12px 0}.utilities{display:grid;grid-template-columns:1fr 1fr;gap:10px}.utilities button{font-size:10px;margin:0;padding:12px 6px}.keys{font-size:11px!important;margin:10px 0!important}canvas{user-select:none;-webkit-user-select:none} @media(max-width:400px){.utilities{grid-template-columns:1fr}}
+
+.pilot-label{display:block;margin:12px 0 6px;color:#cfb991;font:11px monospace;letter-spacing:.12em}#pilot{width:100%;padding:12px;background:#152c35;color:#f4dfc0;border:1px solid #729395;font:13px monospace}#pilot:focus-visible{outline:3px solid #ecd39a}#pilot:disabled{opacity:.6}#pilotInfo{margin:8px 0!important;min-height:0!important}
+
+.special{border:1px solid #c4a56a!important;background:linear-gradient(110deg,#3f362c,#1b3439)!important;color:#ffe1a6!important;margin-bottom:8px}#event{margin:12px 0;padding:12px;border:1px solid #907247;background:#302721}#event[hidden]{display:none}#event .utilities{display:flex;gap:8px;flex-wrap:wrap}#event button{font-size:11px;flex:1 1 150px}#objective{border-left:3px solid #d7b777;padding-left:8px;margin:10px 0}
+
+/* Phase 12: the tactical information stays readable at phone widths. */
+.touch-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;background:#11232b;padding:7px;border:1px solid #526b72;border-bottom:0}
+.touch-toolbar button{min-width:0;min-height:45px;margin:0;padding:8px 3px;font-size:10px;letter-spacing:0;line-height:1.35}
+.touch-toolbar button[aria-pressed="true"]{background:#6d6650;border-color:#e6c58d;box-shadow:inset 0 0 0 1px #d1b480}
+.touch-toolbar button:disabled{opacity:.4}
+.boss-hud{padding:12px;margin:12px 0;border:1px solid #a66379;background:#301e2c}
+.boss-hud[hidden]{display:none}
+.boss-hud-head{display:flex;justify-content:space-between;gap:10px;color:#ffc8bf;font:700 12px monospace}
+.boss-track{height:12px;margin:10px 0 5px;background:#0c141e;border:1px solid #8e6179;overflow:hidden}
+#bossFill{height:100%;width:100%;background:linear-gradient(90deg,#b64d67,#df9f77);transition:width .2s}
+#bossHealth{color:#eed5c2;font:12px monospace}.threat-summary{color:#f2c3b5;background:#251f2a;border-left:3px solid #e69a8e;padding:10px;margin:12px 0;font:12px/1.5 monospace}
+@media(max-width:520px){.touch-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.touch-toolbar button{font-size:12px;min-height:48px}canvas{touch-action:none}}
+
+/* Phase 15: optional encounter controls */
+.encounter-panel{border:1px solid #597681;background:#13242c;padding:12px;margin:12px 0}
+.encounter-panel[hidden]{display:none}
+.encounter-panel h3{margin:2px 0 6px}
+.encounter-panel .hint{margin:6px 0 12px}
+.encounter-panel button{white-space:normal;min-height:48px}
+.encounter-panel button[aria-pressed="true"]{border-color:#efd99e;background:#645038}
+
+/* Fase 20: controles táctiles, legibilidad y rendimiento */
+.quality-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#14242c;border:1px solid #526b72;border-top:0;padding:6px 12px;color:#bdc9c6;font:11px ui-monospace,monospace;letter-spacing:.08em}
+.quality-bar button{width:auto;min-height:44px;margin:0;padding:9px 13px;background:#29454d;font-size:11px}
+canvas{touch-action:none;-webkit-tap-highlight-color:transparent}
+@media(max-width:520px){.quality-bar{font-size:9px}.quality-bar button{font-size:10px}.touch-toolbar button{min-height:52px}button{min-height:44px}}
+/* Phase 29: a calmer frame gives the tactical grid visual breathing room. */
+canvas#game{background:#0c1822;image-rendering:auto;outline:1px solid #1f3c48;outline-offset:-4px}
+.battle .screen-top{border-color:#6b8080;background:#0f202a;color:#dfd5ba}
+.legend{gap:14px;background:#0c1921;border-color:#465f67}
+
+/* Fase 30: acciones esenciales junto al tablero en teléfonos. */
+.mobile-action{display:none}
+@media(max-width:520px){
+ .touch-toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .touch-toolbar .mobile-action{display:block}
+ #touchEnd{background:#795a43;border-color:#d5ae7b}
+ .touch-toolbar button{font-size:11px;line-height:1.3;min-height:52px}
+}

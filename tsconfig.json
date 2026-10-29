@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "none",
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "dist"
+  },
+  "include": [
+    "src/rebirth.ts",
+    "src/art.ts",
+    "src/creatures.ts",
+    "src/bestiary.ts",
+    "src/cinematics.ts",
+    "src/guidance.ts",
+    "src/atmosphere.ts",
+    "src/weather.ts",
+    "src/panorama.ts",
+    "src/pixi-layer.ts",
+    "src/globals.d.ts"
+  ]
+}

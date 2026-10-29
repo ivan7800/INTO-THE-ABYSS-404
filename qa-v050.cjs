@@ -1,0 +1,20 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const read=p=>fs.readFileSync(p,'utf8');
+const html=read('index.html'),engine=read('game.js'),gpu=read('src/rebirth.ts'),fx=read('src/cinematics.ts'),guide=read('src/guidance.ts'),atmo=read('src/atmosphere.ts');
+const scripts=['dist/art.js','dist/creatures.js','dist/bestiary.js','dist/cinematics.js','dist/atmosphere.js','dist/guidance.js','game.js','dist/rebirth.js'];
+let last=-1;
+for(const script of scripts){assert.ok(fs.existsSync(script),`${script} missing`);let idx=html.indexOf(`src="${script}"`);assert.ok(idx>last,`${script} must load in proper order`);last=idx;}
+assert.match(engine,/AbyssCinematicFX\?\.fire\(e,\s*\{\s*x:\s*i\.x,\s*y:\s*i\.y\s*\},\s*'enemy'/);
+assert.match(engine,/AbyssCinematicFX\?\.fire\(u,\s*\{\s*x,\s*y\s*\},\s*'ally'/);
+assert.match(engine,/AbyssGuide\?\.sync\(state\)/);
+assert.match(engine,/AbyssAtmosphere\?\.paint\(ctx,\s*project/);
+assert.match(engine,/AbyssGPU\?\.setScene/);
+assert.match(gpu,/texSubImage2D/);assert.match(gpu,/webglcontextlost/);assert.match(gpu,/uniform3fv/);
+assert.match(fx,/function paint/);assert.match(fx,/const MAX=24/);
+assert.match(guide,/localStorage/);assert.match(guide,/addEventListener\('click',hide\)/);
+assert.match(atmo,/ctx\.createRadialGradient/);
+for(const source of ['src/rebirth.ts','src/cinematics.ts','src/guidance.ts','src/atmosphere.ts']) assert.ok(fs.statSync(source).size>500);
+const pkg=JSON.parse(read('package.json'));assert.ok(['0.50.0','0.55.0','0.60.0','0.65.0'].includes(pkg.version));
+assert.match(read('launch-local.py'),/v0\.(?:50|55|60|65)/);assert.match(read('launch-windows.ps1'),/v0\.(?:50|55|60|65)/);
+console.log('PASS v0.50: TypeScript GPU/atmosphere/cinematics/guidance compiled, links, launcher versions, authoritative engine preserved');

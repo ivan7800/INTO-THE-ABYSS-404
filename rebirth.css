@@ -1,0 +1,45 @@
+/* REBIRTH 0.40 — a premium restrained horror dossier; graphics are rendered in canvas. */
+body{background:radial-gradient(ellipse at 52% -22%,#254653 0,#101d2a 43%,#060a10 100%)}
+header{position:relative}h1{font-weight:700;letter-spacing:.095em;color:#e3ded0;text-shadow:0 2px 1px #070c11,0 12px 35px #000e}
+h1 em{color:#e3bc86;font-style:normal;text-shadow:0 0 24px #b7775033}
+.strap{border-color:#5b707858}.strap strong{color:#e2b896}
+.battle{position:relative;filter:drop-shadow(0 22px 24px #0007)}
+.screen-top{background:linear-gradient(90deg,#172d35,#0b1c28)!important;border-color:#7b8b83!important;color:#e4cfab!important}
+.rebirth-stage{position:relative;line-height:0;isolation:isolate}
+.rebirth-stage #game{display:block;position:relative;z-index:2;touch-action:none}
+#game.rebirth-source{opacity:0;cursor:crosshair}
+#rebirth-screen{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;image-rendering:pixelated;pointer-events:none;outline:1px solid #728477}
+.quality-bar{background:#11232d}.legend{background:linear-gradient(90deg,#111d25,#172930)}
+aside{border-color:#607477;background:linear-gradient(135deg,#1c2e35,#0c1b24 75%)}
+aside h2{border-bottom:1px solid #496067;padding-bottom:14px}
+button{transition:background .10s,transform .1s}button:active:not(:disabled){transform:translateY(1px);filter:brightness(1.16)}
+button:focus-visible,#pilot:focus-visible{outline:3px solid #f3d38e;outline-offset:2px}
+#status{font-size:15px}.touch-toolbar button{background:#243b44}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+/* v0.45 : tactical enemy bestiary, supplementary information only */
+.codex{margin:10px 0 16px;border:1px solid #415961;background:rgba(8,22,31,.78);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.codex summary{cursor:pointer;padding:12px 10px;color:#e3c18e;font-size:11px;letter-spacing:.06em;font-weight:bold;line-height:1.5}
+.codex summary:focus-visible{outline:2px solid #b6eadd;outline-offset:2px}
+.codex-list{max-height:410px;overflow-y:auto;padding:3px 9px 10px}
+.codex-entry{display:flex;gap:10px;border-top:1px solid #314551;padding:9px 0;align-items:center}
+.codex-sprite{image-rendering:pixelated;width:48px;height:64px;flex-shrink:0;filter:drop-shadow(0 0 8px #8d50734d)}
+.codex-info{min-width:0;line-height:1.45}
+.codex-info strong{color:#e3d0ae;font-size:10px;display:block}
+.codex-info p{color:#aabcc0;font-size:10px;margin:5px 0}
+.codex-info small{color:#a9e4d8;font-size:9px;display:block}
+.codex-info small.codex-alert{color:#f2ada2}
+/* v0.50 — optional tactical guide, does not intercept canvas hit testing */
+.rebirth-guide{position:relative;margin:0 0 8px;padding:11px 12px;background:linear-gradient(115deg,#18343d,#11242d);border:1px solid #849789;color:#dfdfcf;box-shadow:0 0 16px #03080b44;font:12px/1.55 ui-monospace,Consolas,monospace}
+.rebirth-guide[hidden]{display:none!important}.guide-heading,.guide-controls{display:flex;gap:10px;align-items:center;justify-content:space-between}.guide-heading strong{color:#f0c790;font-size:11px;letter-spacing:.06em}.guide-heading button{border:1px solid #647c80;background:#0f2630;color:#f6d4a2;padding:2px 8px;cursor:pointer}.rebirth-guide p{margin:7px 0 9px}.guide-controls span{color:#b4d8d0;font-size:10px}.guide-controls button,#guide-reopen{border:1px solid #587980;color:#e4d1ad;background:#1a3640;padding:5px 9px;font:10px ui-monospace,Consolas,monospace;cursor:pointer}#guide-reopen{margin-left:auto}.rebirth-guide button:focus-visible,#guide-reopen:focus-visible{outline:2px solid #ffd49c;outline-offset:2px}
+.rebirth-guide .guide-heading button,.rebirth-guide .guide-controls button{width:auto!important;flex:0 0 auto;min-width:unset!important;max-width:max-content}.rebirth-guide .guide-heading button{font-size:14px;line-height:1.15}.guide-controls{flex-wrap:wrap}
+
+.gpu-label{color:#a5d3cc;font:10px ui-monospace,Consolas,monospace;white-space:nowrap}.quality-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.quality-bar .gpu-label{margin-left:0}
+
+/* v0.55: genuine PixiJS stage when official bundle is locally installed. */
+#pixi-screen{position:absolute;inset:0;width:100%;height:100%;z-index:1;image-rendering:pixelated;pointer-events:none;outline:1px solid #728477}
+
+/* REBIRTH v0.60: tactical pointer/keyboard inspection without hiding the scene. */
+.tile-inspector{min-height:40px;padding:9px 12px;border-top:1px solid #334f58;border-bottom:1px solid #48616b;background:linear-gradient(90deg,#0f202b,#172e35);color:#e9dab9;font:11px/1.55 ui-monospace,Consolas,monospace;letter-spacing:.02em}
+#keyboardMode{border:1px solid #628d8d;color:#dddfcc;background:#233a43;padding:6px 10px;font:10px ui-monospace,monospace;cursor:pointer}
+#keyboardMode[aria-pressed="true"]{background:#325f60;color:#fff2c4;border-color:#c1c7a3}
+#game:focus-visible{outline:3px solid #f4d38e;outline-offset:2px}

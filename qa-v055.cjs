@@ -1,0 +1,44 @@
+'use strict';
+/** Regression tests for genuinely migrated TypeScript tactical kernel. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const cp=require('node:child_process');
+const root=__dirname;
+const ctx={};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(root,'build-tmp/tactics.js'),'utf8'),ctx);
+const core=ctx.AbyssTactics;
+assert.equal(core.BOARD_SIZE,8);
+assert.equal(core.distance({x:0,y:0},{x:7,y:6}),13);
+assert.ok(core.inside(7,7));assert.ok(!core.inside(8,7));assert.ok(!core.inside(1.5,3));
+const one={id:1,x:1,y:1,hp:5,side:'ally',type:'pen',range:2};
+const state={units:[one,{id:2,x:2,y:1,hp:3,side:'enemy',type:'seer',range:2}],buildings:[{x:0,y:1,hp:2}],rocks:[{x:1,y:0}],rifts:[],intent:[],turn:1};
+const found=core.reachable(state,one);
+assert.equal(found.size,4); // BFS excludes occupied and blocked cells
+assert.equal(found.has('2,1'),false);assert.equal(found.has('0,1'),false);assert.equal(found.has('1,0'),false);
+assert.equal(core.legalAttack(one,{x:2,y:1},state.units[1]),true);
+assert.equal(core.legalAttack(one,{x:3,y:1},state.units[1]),false);
+assert.equal(core.clampDamage(2,5),2);
+assert.equal(core.clampDamage(3,-5),0);
+assert.equal(core.corrupt(98,9),100);
+assert.equal(core.corrupt(3,-9),0);
+assert.equal(core.omenFor(1,0),null);
+assert.equal(core.omenFor(2,0).type,'fracture');
+assert.equal(core.omenFor(3,0).type,'surge');
+assert.equal(core.resonanceFor(state),null);
+state.turn=2;state.rifts=[{x:2,y:2}];
+assert.equal(core.resonanceFor(state).source,2);
+const originalIntent=core.intentFor(state.units[1],state);
+assert.ok(originalIntent);assert.equal(originalIntent.id,2);assert.ok(core.inside(originalIntent.x,originalIntent.y));
+// Migration assertions: all gameplay is now emitted from TS, not hand-maintained JS.
+const src=fs.readFileSync('src/game.ts','utf8'),generated=fs.readFileSync('game.js','utf8'),pixi=fs.readFileSync('src/pixi-layer.ts','utf8');
+assert.match(src,/AbyssTactics\.reachable/);assert.match(src,/AbyssTactics\.intentFor/);
+assert.match(src,/AbyssTactics\.omenFor/);assert.match(src,/AbyssTactics\.resonanceFor/);
+assert.match(generated,/GENERATED.*src\/tactics\.ts.*src\/game\.ts/);
+assert.match(pixi,/new pixi\.Application\(\)/);assert.match(pixi,/await app\.init\(/);
+assert.match(pixi,/pixi\.Texture\.from\(canvas\)/);assert.match(pixi,/texture\.source\.update\(\)/);
+assert.match(pixi,/method:'HEAD'/);
+assert.match(fs.readFileSync('index.html','utf8'),/dist\/pixi-layer\.js/);
+assert.ok(fs.existsSync('vendor/README.md'));
+assert.deepEqual(JSON.parse(fs.readFileSync('package.json','utf8')).dependencies,{'pixi.js':'8.19.0'});
+console.log('PASS v0.55: 17+ tactical cases, TS source of truth, deterministic threats, PixiJS v8 adapter, offline vendor workflow');

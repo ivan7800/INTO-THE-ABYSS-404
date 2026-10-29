@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const html=fs.readFileSync('index.html','utf8'),ts=fs.readFileSync('src/rebirth.ts','utf8');
+assert.match(html,/game\.js/);assert.match(html,/dist\/art\.js/);assert.match(html,/dist\/rebirth\.js/);
+assert.match(ts,/webgl2/);assert.match(ts,/webglcontextlost/);assert.match(ts,/rebirth-source/);
+assert.ok(fs.existsSync('dist/rebirth.js'));assert.ok(fs.existsSync('dist/art.js'));
+assert.match(fs.readFileSync('src/art.ts','utf8'),/window as Window/);
+assert.match(fs.readFileSync('INICIAR-WINDOWS.bat','utf8'),/powershell\.exe/);
+assert.match(fs.readFileSync('INICIAR-LINUX.sh','utf8'),/python3/);
+console.log('PASS REBIRTH: authoritative tactical canvas preserved; TS visual atlas, GPU shader, fallback and launcher files found');

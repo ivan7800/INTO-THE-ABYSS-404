@@ -1,0 +1,20 @@
+{
+  "name": "into-the-abyss-404-rebirth",
+  "version": "0.65.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.tactics.json && tsc -p tsconfig.json && node scripts/build-game.cjs",
+    "vendor:pixi": "node scripts/vendor-pixi.cjs",
+    "test:core": "node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs",
+    "test": "sh qa-all.sh && node qa-rebirth.cjs && node qa-v040.cjs && node qa-v045.cjs && node qa-v050.cjs && node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs",
+    "check": "npm run build && npm test",
+    "qa:launchers": "python3 qa-launchers.py",
+    "qa:browser": "python3 qa-v065-browser.py"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "pixi.js": "8.19.0"
+  }
+}

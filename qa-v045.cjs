@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('node:fs');const assert=require('node:assert/strict');
+const html=fs.readFileSync('index.html','utf8'),game=fs.readFileSync('game.js','utf8'),code=fs.readFileSync('dist/creatures.js','utf8');
+assert.match(html,/<script src="dist\/creatures\.js" defer>/);
+assert.ok(html.indexOf('dist/creatures.js')<html.indexOf('game.js'),'Visual atlas must load before initial game rendering');
+assert.match(game,/window\.AbyssCombatFX\?\.impact\(x,\s*y,\s*color\)/);
+assert.match(game,/window\.AbyssCombatFX\?\.effects\(ctx,\s*project,\s*visualTime,\s*reducedMotion\(\)\)/);
+assert.match(code,/REBIRTH 0\.45 PIXEL ATLAS/);
+assert.match(code,/imageSmoothingEnabled = false/);
+assert.match(code,/function paint\(/);
+assert.match(code,/function effects\(/);
+assert.match(game,/window\.AbyssCombatFX\?\.damage\(obj\.x,\s*obj\.y,\s*actual/);
+assert.match(code,/function damage\(/);
+assert.match(fs.readFileSync('src/creatures.ts','utf8'),/type Actor/);
+console.log('PASS REBIRTH 0.45 atlas compile, layer integration, combat FX and original engine hooks');

@@ -1,0 +1,11 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const events={},nodes={},saved=new Map();const fakeCtx=new Proxy({createLinearGradient:()=>({addColorStop(){}}),createRadialGradient:()=>({addColorStop(){}})},{get:(o,k)=>o[k]??(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
+const element=id=>nodes[id]??={dataset:{},style:{},disabled:false,hidden:false,innerText:'',textContent:'',value:'ada',setAttribute(k,v){this[k]=v},click(){events[id+':click']?.()},addEventListener:(evt,fn)=>{events[id+':'+evt]=fn},getContext:()=>fakeCtx,getBoundingClientRect:()=>({left:0,top:0,width:640,height:640}),replaceChildren(){}};
+const units=[1,2,3].map(n=>{const el=element(`unit${n}`);el.dataset.unit=String(n);return el});
+const context={document:{querySelector:element,querySelectorAll:(selector)=>selector==='[data-unit]'?units:[],addEventListener(){},createElement:()=>({}),hidden:false},window:{matchMedia:()=>({matches:false})},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)},performance:{now:()=>1000},requestAnimationFrame(){},console};vm.createContext(context);vm.runInContext(fs.readFileSync(new URL('./game.js',import.meta.url),'utf8'),context);const run=s=>vm.runInContext(s,context);
+for(let x=0;x<8;x++)for(let y=0;y<8;y++){const p=run(`project(${x},${y})`),got=run(`hitTile(${p.x},${p.y})`);assert.deepEqual([got.x,got.y],[x,y])}
+assert.equal(element('#threatSummary').textContent.startsWith('AMENAZAS:'),true);
+assert.equal(units[0]['aria-pressed'],'true');events['unit2:click']();assert.equal(run('state.selected'),2);assert.equal(units[1]['aria-pressed'],'true');events['#touchMode:click']();assert.equal(run('state.mode'),'attack');
+run('campaign.sector=4;init()');assert.equal(element('#bossHUD').hidden,false);assert.equal(element('#bossHealth').textContent,'12 / 12 PV');assert.equal(element('#bossPhase').textContent.includes('FASE I'),true);run("state.units.find(u=>u.type==='leviathan').hp=6;render()");assert.equal(element('#bossPhase').textContent.includes('FASE II'),true);assert.equal(element('#bossFill').style.width,'50%');
+run('campaign.sector=0;init()');assert.equal(element('#bossHUD').hidden,true);
+console.log('PASS phase12: 64 tiles, threat HUD, unit selection, mobile mode, boss health and phase transition');

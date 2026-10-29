@@ -1,0 +1,7 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const src=fs.readFileSync(__dirname+'/game.js','utf8');
+const nodes={};const ctx=new Proxy({createLinearGradient:()=>({addColorStop(){}}),createRadialGradient:()=>({addColorStop(){}}),measureText:()=>({width:20})},{get:(o,k)=>k in o?o[k]:()=>{}});
+function el(k){return nodes[k]??={textContent:'',disabled:false,setAttribute(){},addEventListener(){},replaceChildren(){},getContext(){return ctx},getBoundingClientRect(){return {left:0,top:0,width:640,height:640}}}}
+const storage=new Map(),sandbox={document:{querySelector:el,createElement:()=>({}),addEventListener(){},hidden:false},window:{matchMedia:()=>({matches:false})},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},performance:{now:()=>1000},requestAnimationFrame:()=>1,console};vm.createContext(sandbox);vm.runInContext(src,sandbox);const run=x=>vm.runInContext(x,sandbox);
+run('init()');assert.strictEqual(run('special()'),true);assert.strictEqual(run('special()'),false,'no duplicate special same turn');assert.strictEqual(run('state.units.find(u=>u.id===1).specialTurn'),1);run('state.turn=3');assert.strictEqual(run('special()'),false,'cooldown not finished');run('state.turn=4');assert.strictEqual(run('special()'),true,'special refreshed turn 4');assert.strictEqual(run('state.units.find(u=>u.id===1).shield'),3);
+run('persist()');assert.ok(storage.size>0);console.log('PASS phase26: cooldown 3 turns, repeatable specials, save persistence');
