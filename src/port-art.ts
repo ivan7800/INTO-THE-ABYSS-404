@@ -4,7 +4,7 @@
  * No network requests and no game-state mutation.
  */
 (() => {
- type ArtKind='tile'|'building'|'rock';
+ type ArtKind='tile'|'building'|'rock'|'dock'|'lantern'|'water'|'lighthouse';
  const cache=new Map<string,HTMLCanvasElement>();
  const C={ink:'#0b1825',slate:'#243947',stone:'#405962',edge:'#718b8c',salt:'#8c9c93',
  moss:'#315957',gold:'#e0b975',glass:'#e3d7a6',roof:'#3b555d',sea:'#193b46'};
@@ -12,8 +12,8 @@
   const key=kind+':'+variant+':'+damage;
   const existing=cache.get(key);if(existing)return existing;
   const canvas=document.createElement('canvas');
-  canvas.width=kind==='tile'?78:kind==='building'?84:72;
-  canvas.height=kind==='tile'?48:kind==='building'?120:64;
+  canvas.width=kind==='tile'?78:kind==='building'?84:kind==='lighthouse'?104:kind==='water'?96:72;
+  canvas.height=kind==='tile'?48:kind==='building'?120:kind==='lighthouse'?154:kind==='water'?48:kind==='lantern'?96:64;
   const g=canvas.getContext('2d');if(!g)throw Error('No 2D texture context');
   g.imageSmoothingEnabled=false;
   const rect=(x:number,y:number,w:number,h:number,color:string)=>{g.fillStyle=color;g.fillRect(x,y,w,h)};
@@ -45,12 +45,52 @@
    if(damaged){rect(55,41,8,3,C.ink);rect(52,44,4,9,C.ink);rect(28,88,9,4,C.ink)}
    rect(31,102,22,7,C.ink);
    for(let i=0;i<Math.max(0,Math.min(3,damage));i++)rect(34+i*6,104,4,3,C.gold);
-  }else{
+  }else if(kind==='rock'){
    path([[8,43],[17,24],[32,13],[52,24],[64,46],[38,56]],'#3d5c65','#8a9997');
    path([[17,24],[32,13],[44,24],[32,39]],'#738e8c');
    rect(29,22,4,3,C.salt);rect(45,37,6,3,C.ink);
   }
+  if(kind==='dock'){
+    // Salt-rotted timber, iron rivets, short pylons and rope along the rear lip.
+    path([[4,29],[35,13],[69,31],[39,52]],'#785d4b','#b19a79');
+    for(let i=0;i<5;i++){
+     const x=11+i*10;rect(x,26+(i%2)*3,8,22,'#4d3c35');rect(x+1,27+(i%2)*3,6,1,'#a18965');
+     rect(x+2,38+(i%2)*2,2,2,C.ink);
+    }
+    rect(11,16,7,38,'#47372c');rect(10,13,9,5,'#917958');
+    rect(57,19,7,36,'#47372c');rect(56,16,9,5,'#917958');
+    g.strokeStyle='#a49379';g.lineWidth=2;g.beginPath();g.moveTo(17,18);g.quadraticCurveTo(36,30,60,21);g.stroke();
+   }else if(kind==='lantern'){
+    rect(32,18,7,46,'#526366');rect(27,60,18,5,C.ink);
+    path([[23,18],[35,7],[48,18]],'#718181','#b3a88a');
+    rect(27,19,18,19,C.ink);rect(30,21,12,14,'#f6cb77');rect(32,21,8,15,'#ffe6a2');
+    rect(25,37,22,4,'#718181');rect(30,41,12,3,'#303f45');
+    rect(20,45,28,4,C.ink);rect(25,51,19,3,'#9a8e73');
+   }else if(kind==='water'){
+    for(let y=4;y<45;y+=6){
+     rect(2,y+((variant*3)%5),92,4,y%3===0?'#15303e':'#204854');
+     for(let i=0;i<5;i++){
+      const x=(i*23+y*11+variant*9)%90;rect(x,y+2,8+(i%3)*3,1,i%2?'#678c8b':'#376974');
+     }
+    }
+    rect(31,23,14,1,'#cbb48a');rect(50,34,4,1,'#9d9680');
+   }else if(kind==='lighthouse'){
+    // Crooked masonry lighthouse: tall, sculpted silhouette and beacon.
+    path([[18,145],[29,56],[73,56],[88,145]],'#344954','#84918e');
+    path([[52,56],[73,56],[88,145],[53,140]],'#203746','#566c74');
+    for(let i=0;i<7;i++){
+     const y=70+i*11;rect(28+i, y,44+i*3,2,'#63767a');
+     rect(34+i*2,y+5,4,3,'#263a45');
+    }
+    rect(37,24,34,32,'#142938');rect(40,27,27,21,'#f4c47b');
+    rect(45,29,17,16,'#ffe9ad');rect(51,30,6,14,'#fff5c4');
+    rect(36,20,35,5,'#7c9293');rect(43,13,22,8,'#273a44');
+    path([[31,13],[55,1],[79,13]],'#4e686c','#a6aaa0');
+    rect(28,54,49,6,'#8b9893');
+    for(let j=0;j<3;j++){const y=92+j*17;rect(50,y,6,11,C.ink);rect(52,y+1,2,5,'#f1c984')}
+    if(damage<=1){rect(78,119,6,9,C.ink);rect(76,129,10,4,C.ink)}
+   }
   cache.set(key,canvas);return canvas;
  }
- (window as any).AbyssPortArt={version:'0.80',create:make,cacheSize:()=>cache.size};
+ (window as any).AbyssPortArt={version:'0.81',create:make,cacheSize:()=>cache.size};
 })();

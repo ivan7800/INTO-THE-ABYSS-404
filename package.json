@@ -1,12 +1,12 @@
 {
   "name": "into-the-abyss-404-rebirth",
-  "version": "0.80.0",
+  "version": "0.81.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.tactics.json && tsc -p tsconfig.json && node scripts/build-game.cjs",
     "vendor:pixi": "node scripts/vendor-pixi.cjs",
     "test:core": "node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs",
-    "test": "sh qa-all.sh && node qa-rebirth.cjs && node qa-v040.cjs && node qa-v045.cjs && node qa-v050.cjs && node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs && node qa-v070.cjs && node qa-v075.cjs && node qa-v080.cjs",
+    "test": "sh qa-all.sh && node qa-rebirth.cjs && node qa-v040.cjs && node qa-v045.cjs && node qa-v050.cjs && node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs && node qa-v070.cjs && node qa-v075.cjs && node qa-v080.cjs && node qa-v081.cjs",
     "check": "npm run build && npm test",
     "qa:launchers": "python3 qa-launchers.py",
     "qa:browser": "python3 qa-v065-browser.py",
@@ -14,7 +14,8 @@
     "verify:site": "node scripts/verify-site.cjs",
     "qa:browser:070": "python3 qa-v070-browser.py",
     "qa:browser:075": "python3 qa-v075-browser.py",
-    "qa:browser:080": "python3 qa-v080-browser.py"
+    "qa:browser:080": "python3 qa-v080-browser.py",
+    "qa:browser:081": "python3 qa-v081-browser.py"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

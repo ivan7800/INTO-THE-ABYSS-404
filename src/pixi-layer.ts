@@ -6,7 +6,7 @@
 (() => {
  type PixiGlobal={Application:new()=>any;Sprite:new(texture:any)=>any;Graphics:new()=>any;Container:new()=>any;Texture:{from:(src:HTMLCanvasElement)=>any}};
  type Scene={corruption:number;sector:number;quality:'lite'|'full';lights:{x:number;y:number}[]};
- const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,fps:0};
+ const runtime={status:'pending',frames:0,reason:'bundle-unavailable',engineVersion:'8.19.0',nativeObjects:0,nativeUnits:0,nativeTiles:64,hideCanvasUnits:false,hideCanvasPort:false,nativeBuildings:0,portAtlas:0,portProps:0,fps:0};
  const w=window as Window & {PIXI?:PixiGlobal;AbyssPixi?:typeof runtime};
  w.AbyssPixi=runtime;
  async function activate(pixi:PixiGlobal){
@@ -30,7 +30,7 @@
    portBuildings.sortableChildren=true;
    app.stage.addChild(portTiles,portBuildings);
    const portTileSprites:any[]=[],portBuildingSprites=new Map<string,any>(),portTextures=new Map<string,any>();
-   const portTexture=(kind:'tile'|'building'|'rock',variant:number,hp:number)=>{
+   const portTexture=(kind:'tile'|'building'|'rock'|'dock'|'lantern'|'water'|'lighthouse',variant:number,hp:number)=>{
     const key=kind+':'+variant+':'+hp;
     if(portTextures.has(key))return portTextures.get(key);
     const canvas=(window as any).AbyssPortArt?.create(kind,variant,hp);
@@ -45,6 +45,21 @@
     t.anchor.set(.5,.5);t.position.set(p.x,p.y);portTiles.addChild(t);
     portTileSprites.push({tile:t,x,y});
    }
+   
+   // Architectural set dressing is outside passable grid cells, never blocks input.
+   const portPropsLayer=new pixi.Container();
+   portPropsLayer.sortableChildren=true;
+   app.stage.addChild(portPropsLayer);
+   const portProps:any[]=[];
+   const placeProp=(kind:'dock'|'lantern'|'water'|'lighthouse',x:number,y:number,variant=0)=>{
+     const s=new pixi.Sprite(portTexture(kind,variant,0));
+     s.anchor.set(.5,1);s.position.set(x,y);s.zIndex=Math.round(y);
+     portPropsLayer.addChild(s);portProps.push({sprite:s,kind,variant,x,y});
+   };
+   placeProp('water',122,417,0);placeProp('water',208,472,1);placeProp('water',410,470,2);placeProp('water',505,409,3);
+   placeProp('dock',118,397,0);placeProp('dock',514,395,1);
+   placeProp('lantern',121,348,0);placeProp('lantern',516,345,1);
+   placeProp('lighthouse',563,278,0);
    const terrain=new pixi.Graphics();app.stage.addChild(terrain);
    const actorLayer=new pixi.Container();actorLayer.sortableChildren=true;app.stage.addChild(actorLayer);
    const actorCache=new Map<number,any>(),textureCache=new Map<string,any>();
@@ -62,7 +77,7 @@
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
     terrain.clear();
     const portActive=view.sector===0;
-    portTiles.visible=portActive;portBuildings.visible=portActive;
+    portTiles.visible=portActive;portBuildings.visible=portActive;portPropsLayer.visible=portActive;
     runtime.hideCanvasPort=portActive;
     if(portActive){
      const reach=new Set<string>(view.reachable||[]);
@@ -86,7 +101,12 @@
      for(const [key,s] of portBuildingSprites)if(!alive.has(key)){
        portBuildings.removeChild(s);s.destroy();portBuildingSprites.delete(key);
      }
-     runtime.nativeBuildings=portBuildingSprites.size;runtime.portAtlas=portTextures.size;
+     runtime.nativeBuildings=portBuildingSprites.size;runtime.portAtlas=portTextures.size;runtime.portProps=portProps.length;
+     for(const p of portProps){
+       if(p.kind==='water'){p.sprite.alpha=reduced?.88:.72+Math.sin(now*.0017+p.variant)*.15}
+       if(p.kind==='lantern'){p.sprite.alpha=reduced?1:.87+Math.sin(now*.007+p.variant)*.11}
+       if(p.kind==='lighthouse'){p.sprite.alpha=reduced?1:.95+Math.sin(now*.002)*.05}
+     }
      if(view.objective){const p=position(view.objective.x,view.objective.y);terrain.circle(p.x,p.y,19).stroke({color:0xf9d37f,width:2.5,alpha:1})}
      if(view.omen){const p=position(view.omen.x,view.omen.y);terrain.circle(p.x,p.y,14).stroke({color:0xe9c090,width:2,alpha:1})}
     }
@@ -143,7 +163,7 @@
     for(const [id,a] of actorCache)if(!active.has(id)){
      a.holder.parent?.removeChild(a.holder);a.holder.destroy({children:true});actorCache.delete(id);
     }
-    runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64:0);
+    runtime.nativeUnits=actorCache.size;runtime.nativeObjects=actorCache.size+66+(portActive?portBuildingSprites.size+64+portProps.length:0);
    };
 
    // First genuinely native PixiJS object, drawn independently of Canvas.
