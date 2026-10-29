@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const read=x=>fs.readFileSync(x,'utf8');
+assert.equal(require('./package.json').version,'0.82.0');
+assert.match(read('src/port-atmosphere.ts'),/AbyssPortAtmosphere/);
+assert.match(read('src/port-atmosphere.ts'),/prefers-reduced-motion|reduced/);
+assert.match(read('src/pixi-layer.ts'),/atmosphere.tick\(now,view,reduced\)/);
+assert.match(read('src/game.ts'),/into-the-abyss\.v0\.8\.save/);
+assert.match(read('index.html'),/dist\/port-atmosphere\.js/);
+for(const x of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.existsSync(x));
+console.log('PASS v0.82 weather, shadows, light, lite mode, tactical save and launchers');
