@@ -1,4 +1,4 @@
-name: INTO THE ABYSS · Manual release
+name: INTO THE ABYSS · Verified production release
 on:
   push:
     branches: [main]
