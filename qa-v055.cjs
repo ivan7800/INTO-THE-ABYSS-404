@@ -36,7 +36,7 @@ assert.match(src,/AbyssTactics\.reachable/);assert.match(src,/AbyssTactics\.inte
 assert.match(src,/AbyssTactics\.omenFor/);assert.match(src,/AbyssTactics\.resonanceFor/);
 assert.match(generated,/GENERATED.*src\/tactics\.ts.*src\/game\.ts/);
 assert.match(pixi,/new pixi\.Application\(\)/);assert.match(pixi,/await app\.init\(/);
-assert.match(pixi,/pixi\.Texture\.from\(canvas\)/);assert.match(pixi,/texture\.source\.update\(\)/);
+assert.match(pixi,/pixi\.Texture\.from\(canvas\)/);assert.match(pixi,/(?:texture|backgroundTexture)\.source\.update\(\)/);
 assert.match(pixi,/method:'HEAD'/);
 assert.match(fs.readFileSync('index.html','utf8'),/dist\/pixi-layer\.js/);
 assert.ok(fs.existsSync('vendor/README.md'));

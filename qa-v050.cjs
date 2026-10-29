@@ -15,6 +15,6 @@ assert.match(fx,/function paint/);assert.match(fx,/const MAX=24/);
 assert.match(guide,/localStorage/);assert.match(guide,/addEventListener\('click',hide\)/);
 assert.match(atmo,/ctx\.createRadialGradient/);
 for(const source of ['src/rebirth.ts','src/cinematics.ts','src/guidance.ts','src/atmosphere.ts']) assert.ok(fs.statSync(source).size>500);
-const pkg=JSON.parse(read('package.json'));assert.ok(['0.50.0','0.55.0','0.60.0','0.65.0','0.70.0'].includes(pkg.version));
+const pkg=JSON.parse(read('package.json'));assert.ok(['0.50.0','0.55.0','0.60.0','0.65.0','0.70.0','0.75.0'].includes(pkg.version));
 assert.match(read('launch-local.py'),/v0\.(?:50|55|60|65|70)/);assert.match(read('launch-windows.ps1'),/v0\.(?:50|55|60|65)/);
 console.log('PASS v0.50: TypeScript GPU/atmosphere/cinematics/guidance compiled, links, launcher versions, authoritative engine preserved');

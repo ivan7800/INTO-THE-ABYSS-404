@@ -225,6 +225,16 @@ function checkEnd(){if(state.integrity<=0||!alive('ally').length){state.phase='l
 const ISO_W=78,ISO_H=48,ORIGIN_X=320,ORIGIN_Y=155;
 const TILE_RX=34,TILE_RY=19; // deliberate negative space between tactical diamonds
 const project=(x,y)=>({x:ORIGIN_X+(x-y)*ISO_W/2,y:ORIGIN_Y+(x+y)*ISO_H/2});
+(window as any).AbyssView=()=>({
+ sector:campaign.sector,selected:state.selected,phase:state.phase,
+ units:state.units.filter((u:any)=>u.hp>0).map((u:any)=>({
+  id:u.id,x:u.x,y:u.y,hp:u.hp,max:u.max,side:u.side,type:u.type,stunned:!!u.stunned
+ })),
+ threats:state.intent.map((i:any)=>({x:i.x,y:i.y})),
+ rifts:state.rifts.map((r:any)=>({x:r.x,y:r.y})),
+ cursor:cursorActive?{...cursorCell}:null
+});
+
 const unproject=(px,py)=>{const u=(px-ORIGIN_X)/(ISO_W/2),v=(py-ORIGIN_Y)/(ISO_H/2);return {x:Math.floor((u+v)/2),y:Math.floor((v-u)/2)}};
 const hash=(x,y,z=0)=>((x*73856093^y*19349663^z*83492791)>>>0)/4294967295;
 let visualTime=0;
@@ -379,7 +389,7 @@ drawSectorGround(p,x,y);window.AbyssEnvironment?.paint(ctx,'tile',p,campaign.sec
 if(rift)portal(p);
 const b=building(x,y);if(b)house(p,b);
 if(state.rocks.some(r=>r.x===x&&r.y===y))rock(p);
-const u=at(x,y);if(u){unitIcon(p,u);if(u.side==='ally'&&u.id===state.selected){ctx.save();ctx.strokeStyle='#f3d997';ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(p.x,p.y+5,25,12,0,0,Math.PI*2);ctx.stroke();ctx.restore()}}
+const u=at(x,y);if(u&&!window.AbyssPixi?.hideCanvasUnits){unitIcon(p,u);if(u.side==='ally'&&u.id===state.selected){ctx.save();ctx.strokeStyle='#f3d997';ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(p.x,p.y+5,25,12,0,0,Math.PI*2);ctx.stroke();ctx.restore()}}
 if(threat){ctx.strokeStyle='#ffa6a1';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,16,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#ffe5c6';ctx.font='bold 15px monospace';ctx.textAlign='center';ctx.fillText('!',p.x,p.y+5)}
 }}
 // Tactical inspection cursor: never obscures damage numbers or locked threats.
@@ -405,6 +415,7 @@ ctx.save();ctx.strokeStyle='#a7c0bf32';ctx.lineWidth=1;const still=window.matchM
 ctx.save();ctx.globalAlpha=.28;ctx.fillStyle=sceneColors[1];if(campaign.sector===1||campaign.sector===3){for(let n=0;n<14;n++){const x=hash(n,21)*640,y=80+hash(n,22)*530;ctx.beginPath();ctx.arc(x,y,2+hash(n,23)*5,0,Math.PI*2);ctx.fill()}}else if(campaign.sector===2||campaign.sector===4){for(let n=0;n<9;n++){const y=115+n*53+(reducedMotion()?0:Math.sin(visualTime*.001+n)*5);ctx.fillRect(0,y,640,1)}}ctx.restore();
 if(curtain){const elapsed=visualTime-curtain.start;if(elapsed>1300)curtain=null;else{const alpha=Math.min(.8,Math.min(elapsed/150,(1300-elapsed)/420));ctx.fillStyle=`rgba(4,13,22,${Math.max(0,alpha)})`;ctx.fillRect(0,0,640,640);ctx.textAlign='center';ctx.font='bold 19px monospace';ctx.fillStyle='#eed9b1';ctx.fillText(curtain.text,320,315)}}
 }
+(window as any).AbyssDrawSource=()=>draw();
 // Deterministic preview of *currently locked* threats; not a promise about later turns.
 function threatForecast(){
  let buildings=0, allies=0, corruption=0;
