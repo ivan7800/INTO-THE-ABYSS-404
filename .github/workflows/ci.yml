@@ -19,6 +19,8 @@ jobs:
           node-version: '22'
       - name: Install exact versions
         run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Print dependency lockfile for review branch bootstrap
+        run: node -e "console.log('ABYSS_LOCKFILE_BASE64=' + require('fs').readFileSync('package-lock.json').toString('base64'))"
       - name: Vendor official PixiJS with license
         run: npm run vendor:pixi
       - name: TypeScript and tactical regression
