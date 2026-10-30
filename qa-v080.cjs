@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),cp=require('node:child_process');
 const a=fs.readFileSync('src/port-art.ts','utf8'),p=fs.readFileSync('src/pixi-layer.ts','utf8'),g=fs.readFileSync('src/game.ts','utf8');
-assert.ok(['0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0','0.92.0'].includes(require('./package.json').version));
+assert.ok(['0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0','0.92.0','0.93.0'].includes(require('./package.json').version));
 assert.match(a,/AbyssPortArt/);assert.match(a,/create:make/);
 assert.match(p,/portTileSprites/);assert.match(p,/portBuildingSprites/);
 assert.match(p,/nativeBuildings/);assert.match(g,/hideCanvasPort/);
