@@ -1,33 +1,60 @@
-# INTO THE ABYSS 404 — REBIRTH v0.65
+# INTO THE ABYSS 404 — REBIRTH v0.94
 
-Juego táctico de horror cósmico por turnos con **tablero isométrico 8 × 8**, cinco sectores, Custodios, monstruos y jefe final. Continúa la campaña de v0.60 con **nuevos panoramas pixel art 16 bits y clima diferenciado**. Todo el juego funciona sin conexión cuando se lanza localmente.
+Juego táctico de terror cósmico por turnos con tablero isométrico 8 × 8, cinco sectores, Custodios, enemigos y jefe final.
 
-## Iniciar
+> **Estado de lanzamiento:** v0.94 publicada; **v1.0 todavía no certificada**. La CI comprueba compilación, regresiones, pruebas automatizadas de navegador y transiciones sintéticas. No demuestra una campaña ganada de forma legítima ni sustituye pruebas sobre dispositivos físicos. Véase [AUDITORIA-LANZAMIENTO-v094.md](AUDITORIA-LANZAMIENTO-v094.md).
 
-**Windows 10/11:** extrae el ZIP completo y haz doble clic en `INICIAR-WINDOWS.bat`. Utiliza Windows PowerShell 5.1, sin Python/Node ni elevación de administrador. Lanzador preparado pero **aún no validado en Windows real**.
+## Jugar en navegador
 
-**Linux Mint/Ubuntu:** abre la carpeta extraída y ejecuta:
+[GitHub Pages](https://ivan7800.github.io/INTO-THE-ABYSS-404/). Se recomienda exportar una copia JSON de las partidas antes de cambiar de versión.
+
+## Ejecutar localmente
+
+**Windows 10/11:** extrae el paquete completo y ejecuta `INICIAR-WINDOWS.bat`. No requiere elevación de administrador. La compatibilidad con distintas instalaciones de Windows debe comprobarse en hardware real.
+
+**Linux Mint/Ubuntu:** desde la carpeta extraída ejecuta:
 
 ```bash
 bash INICIAR-LINUX.sh
 ```
 
-O marca el `.sh` como ejecutable para usar doble clic. Requiere **Python 3 o Node.js**, usa el que encuentre primero. Ambos lanzadores abren `http://127.0.0.1:8765/`. Mantén abierta la terminal mientras juegas.
-
-Si el puerto 8765 está ocupado por otra versión del juego, ciérrala antes de arrancar. El puerto se conserva para que los guardados del navegador mantengan su origen. Exporta siempre una copia JSON de tu partida antes de cambiar de versión.
+El lanzador requiere Python 3 o Node.js, utiliza el primero disponible y sirve el juego en `http://127.0.0.1:8765/`. Mantén abierto el proceso. Si el puerto está ocupado, cierra el servidor anterior. Conservar el origen permite reutilizar los guardados del navegador.
 
 ## Controles
 
-- Ratón o pantalla táctil: selecciona Custodio y después casilla turquesa; usa modo ATAQUE para atacar.
-- 1/2/3: Custodios; M: modo; H: habilidad; Espacio: finalizar turno.
-- K: navegación por casillas; flechas para mover el cursor; Enter: actuar; Escape: cancelar la navegación.
-- Botón «GRÁFICOS: DETALLADOS» cambia al modo ligero para reducir efectos y partículas.
-- Exportación/importación de partida: botones en el panel lateral.
+- Ratón/táctil: selecciona un Custodio y una casilla disponible; usa el modo de ataque para atacar.
+- Teclas 1/2/3: seleccionar Custodio; M: modo; H: habilidad; Espacio: terminar turno.
+- K: navegación por casillas; flechas: cursor; Enter: actuar; Escape: cancelar.
+- `GRÁFICOS: DETALLADOS`: alterna al modo ligero.
+- Exporta una copia de seguridad de la partida antes de reinstalar o cambiar de versión.
 
-## Desarrollo y verificación
+## Desarrollo
 
-`npm run build` compila TypeScript y genera `game.js` y `dist/*.js` usando `tsc`. `npm test` ejecuta regresiones tácticas y gráficas sin dependencias de terceros. `python3 qa-v065-browser.py` requiere Chromium + Playwright; `python3 qa-launchers.py` verifica los servidores Python/Node en Linux.
+Requiere Node.js 22 y npm. Las dependencias declaradas incluyen TypeScript 5.8.x y PixiJS 8.19.0.
 
-Los panoramas están en `src/panorama.ts` y el clima en `src/weather.ts`. La lógica táctica está en `src/tactics.ts` y el controlador principal en `src/game.ts`. El renderizador visible es Canvas2D o WebGL2 opcional. **PixiJS real sigue sin incluirse en el ZIP** porque no se ha podido descargar en el entorno de construcción; el adaptador está preparado pero no es el renderizador nativo del tablero.
+```bash
+npm install --no-audit --no-fund
+npm run vendor:pixi
+npm run check
+npm run package:site
+npm run verify:site
+```
 
-Consulta `README-REBIRTH.md`, `QA-V065.md`, `PLAN-REBIRTH.md` y `LANZADORES-README.md`.
+`npm run check` compila TypeScript y ejecuta la batería de regresión Node. Los tests de navegador usan Python, Playwright y Chromium; consulta `.github/workflows/ci.yml` para los comandos y versiones utilizados. La publicación verificada usa `.github/workflows/publish-pages.yml`.
+
+**Reproducibilidad pendiente:** el repositorio aún no incluye `package-lock.json`; no se debe sustituir `npm install` por `npm ci` hasta generar, revisar y versionar el lockfile.
+
+## Alcance de la validación
+
+Las pruebas automatizadas no equivalen a una victoria real de principio a fin. El informe [AUDITORIA-LANZAMIENTO-v094.md](AUDITORIA-LANZAMIENTO-v094.md) describe las pruebas de cinco sectores, guardados, controles emulados, mediciones de renderizado por software y la matriz pendiente de hardware físico. Los datos de Chromium headless no representan FPS reales en una GPU.
+
+## Estructura principal
+
+- `src/game.ts` y `src/tactics.ts`: juego y reglas tácticas.
+- `src/pixi-layer.ts`: capa de renderizado PixiJS.
+- `src/panorama.ts` y `src/weather.ts`: escenarios y clima.
+- `scripts/build-game.cjs`: genera `game.js` desde TypeScript.
+- `scripts/package-site.cjs`: empaqueta archivos públicos en `_site/`.
+- `qa-v094.cjs`, `qa-v094-browser.py`, `qa-launch-audit.py`: verificaciones de la versión y auditoría de lanzamiento.
+
+**Objetivo de la rama `audit/v095-stabilization`:** cerrar riesgos de lanzamiento sin introducir cambios de jugabilidad no verificados. No publicar como v1.0 hasta demostrar campaña legítima y compatibilidad física.
