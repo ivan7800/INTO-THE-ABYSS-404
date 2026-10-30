@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
 const game=fs.readFileSync('src/game.ts','utf8'),html=fs.readFileSync('index.html','utf8');
-assert.equal(require('./package.json').version,'0.93.0');
+assert.ok(['0.93.0','0.94.0'].includes(require('./package.json').version));
 for(const p of [/function defensiveStance\(/,/u\.acted=true/,/Math\.min\(2,\(friend\.shield\|\|0\)\+1\)/,/metrics\(\)\.decisions\+\+/,/into-the-abyss\.v0\.8\.save/])assert.match(game,p);
 assert.match(html,/id="defensiveStance"/);assert.match(html,/id="defenseForecast"/);
 for(const name of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.existsSync(name));

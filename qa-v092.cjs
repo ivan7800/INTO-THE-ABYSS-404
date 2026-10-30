@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
 const source=fs.readFileSync('src/game.ts','utf8'),html=fs.readFileSync('index.html','utf8');
-assert.ok(['0.92.0','0.93.0'].includes(require('./package.json').version));
+assert.ok(['0.92.0','0.93.0','0.94.0'].includes(require('./package.json').version));
 for(const kind of ['containment','defense']){assert.ok(source.includes("missionVictory('"+kind+"')"));assert.ok(html.includes('id="encounter-'+kind+'"'))}
 assert.match(source,/leviathan/);assert.match(source,/into-the-abyss\.v0\.8\.save/);
 for(const f of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.existsSync(f));
