@@ -1,0 +1,33 @@
+name: Bootstrap deterministic npm lockfile for v0.95
+on:
+  push:
+    branches:
+      - release/v0.95.0
+    paths:
+      - .github/workflows/generate-lockfile-v095.yml
+permissions:
+  contents: write
+jobs:
+  lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate verified npm lockfile
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          node -e "const p=require('./package.json');const l=require('./package-lock.json');if(l.version!==p.version||!l.packages['']||l.packages[''].version!==p.version) process.exit(1)"
+      - name: Commit lockfile to release branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m "build: lock npm dependencies for v0.95.0"
+            git push origin HEAD:release/v0.95.0
+          fi
