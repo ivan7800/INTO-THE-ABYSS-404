@@ -58,7 +58,7 @@ function simulateCampaign(strategy,{maxRoundsPerSector=12}={}){
   if(result.phase!=='won')break;
   run('nextMission()');
  }
- return {strategy,complete:run('campaign.complete'),sectors};
+ return {strategy,complete:run('campaign.complete'),finalSector:run('campaign.sector'),savedCompletionValid:run('validSave(JSON.parse(localStorage.getItem(SAVE_KEY)))'),sectors};
 }
 function main(){const runs=[];for(let i=0;i<5;i++)for(const s of STRATEGIES)runs.push(simulate(i,s,{upgrades:i>0}));const report={format:'abyss-tactical-benchmark',version:1,scope:'deterministic scripted policies, no manual browser playtest',runs};if(process.argv.includes('--json'))console.log(JSON.stringify(report,null,2));else{console.log('SECTOR | POLÍTICA | RESULTADO | RONDAS | INTEGRIDAD | CORRUPCIÓN | ENEMIGOS | ACCIONES');for(const r of runs)console.log([r.sector,r.strategy,r.phase,r.rounds,r.integrity,r.corruption,r.enemies,`${r.metrics.moves}/${r.metrics.attacks}/${r.metrics.specials}`].join(' | '));console.log(`Victorias: ${runs.filter(x=>x.phase==='won').length}/${runs.length}; jefe final: ${runs.filter(x=>x.sector===5&&x.phase==='won').length}/3`)}return report}
 if(require.main===module)main();module.exports={simulate,simulateCampaign,main,STRATEGIES};
