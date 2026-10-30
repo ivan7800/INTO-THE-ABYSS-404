@@ -38,6 +38,17 @@ Para cada máquina y navegador, registrar resolución, frecuencia del monitor, e
 - Revisar contraste, foco visible, pantalla reducida, reducción de movimiento y audio desactivado.
 - El botón `SILENCIADO` no reinicia audio sin gesto del usuario; guardar/restaurar una partida no reinicia automáticamente música.
 
+## Resultados observados (CI GitHub Actions 41023692832, 30/10/2026)
+
+- **5/5 sectores** ejecutaron turnos enemigos con la estrategia pasiva de no mover ni atacar; **los cinco terminaron en derrota**. Esto es una prueba de estrés intencional, no una indicación de imposibilidad de victoria ni una partida equilibrada.
+- **5/5 transiciones** de campaña verificadas mediante **victorias inyectadas en una instalación de prueba**. Se alcanza la pantalla `complete`, pero NO acredita derrotar legítimamente al jefe final ni finalizar una campaña sin manipular el estado.
+- **5/5 restauraciones** de estado al recargar dentro de los sectores, sin errores JavaScript detectados.
+- **Chromium móvil emulado 390×844:** botón `FIN TURNO` avanzó al turno 2 y PixiJS siguió activo; no es Safari/iPhone real ni Steam Deck real.
+- **Ciudad Sumergida, Chromium headless / SwiftShader**: en modo detallado, mediana 16,7 ms, p95 816,6 ms, 24/120 intervalos >33,34 ms; en modo ligero, mediana 16,7 ms, p95 799,9 ms, 19/120 intervalos >33,34 ms. Estas medidas son intervalos de `requestAnimationFrame`, no GPU frame time ni FPS de un equipo real. Pueden estar afectadas por la emulación de software, contención de recursos y el entorno de CI. NO permiten calificar el rendimiento real de un PC, Steam Deck ni iPhone.
+- **CI global: SUCCESS**, pero el **dictamen de lanzamiento 1.0 sigue siendo NO APROBADO**, al no existir una campaña completa jugada legítimamente ni evidencia en dispositivos físicos.
+
+Evidencias: [CI y artefacto JSON](https://github.com/ivan7800/INTO-THE-ABYSS-404/actions/runs/41023692832) y `qa-launch-audit.py`.
+
 ## Incidencias iniciales identificadas
 1. **P0 — Faltan resultados de campaña completa, sin trampas de estado.** El conjunto existente prueba componentes y turnos, no completa cinco sectores encadenados de forma legítima.
 2. **P0 — Ausencia de hardware físico verificado.** GitHub CI suele usar un renderizador de software y no representa GPU real, Steam Deck o Safari.
