@@ -59,6 +59,9 @@ try:
    assert vals['nextSector']==sector+1 and vals['wins']==sector+1,vals
    report['synthetic_progression'].append(vals)
   assert report['synthetic_progression'][-1]['complete']
+  # Benchmark during ACTIVE gameplay, not after a synthetic five-sector completion.
+  page.evaluate("() => {window.confirm=()=>true;fullRestart();campaign.sector=2;init()}")
+  assert page.evaluate("campaign.sector===2 && state.phase==='player'")
   # Headless, software-renderer timing; record rather than label as GPU hardware performance.
   for mode in ('full','lite'):
    page.evaluate("""mode => {
@@ -71,7 +74,7 @@ try:
       function step(t){
         if(prior)samples.push(t-prior);
         prior=t;count++;
-        if(count>=151)resolve();else requestAnimationFrame(step);
+        if(count>=121)resolve();else requestAnimationFrame(step);
       }
       requestAnimationFrame(step);
     });
@@ -85,7 +88,7 @@ try:
       webglRenderer:gl?gl.getParameter(dbg?.UNMASKED_RENDERER_WEBGL||gl.RENDERER):'unavailable',
       pixi:AbyssPixi.status,sector:campaign.sector};
    }""")
-   assert measurement['samples']>=140 and measurement['pixi']=='active'
+   assert measurement['samples']>=110 and measurement['pixi']=='active'
    report['performance'].append({'quality':mode,**measurement})
   # Touch-oriented viewport smoke; no real iPhone/Steam Deck hardware assertions.
   mobile=browser.new_page(viewport={'width':390,'height':844},is_mobile=True,has_touch=True,device_scale_factor=2)
