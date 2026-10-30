@@ -56,7 +56,7 @@ try:
      return {index,won,nextSector:campaign.sector,complete:campaign.complete,phase:state.phase,wins:campaign.wins};
    }""")
    assert vals['index']==sector and vals['won'],vals
-   assert vals['nextSector']==sector+1 and vals['wins']==sector+1,vals
+   assert vals['nextSector']==min(sector+1,4) and vals['wins']==sector+1,vals
    report['synthetic_progression'].append(vals)
   assert report['synthetic_progression'][-1]['complete']
   # Benchmark during ACTIVE gameplay, not after a synthetic five-sector completion.
