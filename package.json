@@ -1,12 +1,12 @@
 {
   "name": "into-the-abyss-404-rebirth",
-  "version": "0.92.0",
+  "version": "0.93.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.tactics.json && tsc -p tsconfig.json && node scripts/build-game.cjs",
     "vendor:pixi": "node scripts/vendor-pixi.cjs",
     "test:core": "node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs",
-    "test": "sh qa-all.sh && node qa-rebirth.cjs && node qa-v040.cjs && node qa-v045.cjs && node qa-v050.cjs && node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs && node qa-v070.cjs && node qa-v075.cjs && node qa-v080.cjs && node qa-v081.cjs && node qa-v082.cjs && node qa-v083.cjs && node qa-v084.cjs && node qa-v085.cjs && node qa-v090.cjs && node qa-v091.cjs && node qa-v092.cjs",
+    "test": "sh qa-all.sh && node qa-rebirth.cjs && node qa-v040.cjs && node qa-v045.cjs && node qa-v050.cjs && node qa-v055.cjs && node qa-v060.cjs && node qa-v065.cjs && node qa-v070.cjs && node qa-v075.cjs && node qa-v080.cjs && node qa-v081.cjs && node qa-v082.cjs && node qa-v083.cjs && node qa-v084.cjs && node qa-v085.cjs && node qa-v090.cjs && node qa-v091.cjs && node qa-v092.cjs && node qa-v093.cjs",
     "check": "npm run build && npm test",
     "qa:launchers": "python3 qa-launchers.py",
     "qa:browser": "python3 qa-v065-browser.py",

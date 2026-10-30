@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-assert.ok(['0.90.0','0.91.0','0.92.0'].includes(require('./package.json').version));
+assert.ok(['0.90.0','0.91.0','0.92.0','0.93.0'].includes(require('./package.json').version));
 const tactic=fs.readFileSync('src/tactics.ts','utf8');
 const game=fs.readFileSync('src/game.ts','utf8');
 assert.match(tactic,/const specialist=/);assert.match(game,/Vigilia del Umbral/);
