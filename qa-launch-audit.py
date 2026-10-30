@@ -31,7 +31,7 @@ try:
     snap=page.evaluate("""() => ({turn:state.turn,phase:state.phase,integrity:state.integrity,
       corruption:state.corruption,enemy:state.units.filter(u=>u.side==='enemy'&&u.hp>0).length,
       allies:state.units.filter(u=>u.side==='ally'&&u.hp>0).length,turnsResolved:state.metrics.turnsResolved,
-      history:campaign.history.length})""")
+      history:campaign.history?.length||0})""")
     assert 0<=snap['corruption']<=100 and snap['integrity']>=0 and snap['turnsResolved']==step+1,(sector,snap)
     traces.append(snap)
     if snap['phase']!='player':break
