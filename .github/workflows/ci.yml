@@ -23,6 +23,8 @@ jobs:
         run: npm run vendor:pixi
       - name: TypeScript and tactical regression
         run: npm run check
+      - name: Report release readiness (advisory; physical tests remain manual)
+        run: npm run audit:release
       - name: Package only distributable assets
         run: npm run package:site && npm run verify:site
       - name: Install Playwright Chromium
