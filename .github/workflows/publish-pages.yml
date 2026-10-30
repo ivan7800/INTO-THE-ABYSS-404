@@ -13,7 +13,8 @@ concurrency:
 jobs:
   publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -22,9 +23,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Install reproducible dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
       - run: npm run vendor:pixi && npm run check
       - run: npm run package:site && npm run verify:site
+      - name: Install Chromium for full campaign verification
+        run: |
+          python3 -m pip install --user playwright==1.55.0
+          python3 -m playwright install --with-deps chromium
+      - name: Verify legitimate campaign in browser before release
+        run: python3 qa-v095-browser.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const g=fs.readFileSync('src/game.ts','utf8'),t=fs.readFileSync('src/tactics.ts','utf8');
-assert.equal(require('./package.json').version,'0.94.0');
+assert.ok(['0.94.0','0.95.0'].includes(require('./package.json').version));
 assert.match(g,/target\.entangled=true/);
 assert.match(g,/u\.moved=!!u\.entangled;u\.entangled=false/);
 assert.match(g,/target\.shield=Math\.max\(0,target\.shield-1\)/);

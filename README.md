@@ -1,8 +1,8 @@
-# INTO THE ABYSS 404 — REBIRTH v0.94
+# INTO THE ABYSS 404 — REBIRTH v0.95
 
 Juego táctico de terror cósmico por turnos con tablero isométrico 8 × 8, cinco sectores, Custodios, enemigos y jefe final.
 
-> **Estado de lanzamiento:** v0.94 publicada; **v1.0 todavía no certificada**. La CI comprueba compilación, regresiones, pruebas automatizadas de navegador y transiciones sintéticas. No demuestra una campaña ganada de forma legítima ni sustituye pruebas sobre dispositivos físicos. Véase [AUDITORIA-LANZAMIENTO-v094.md](AUDITORIA-LANZAMIENTO-v094.md).
+> **Estado de lanzamiento:** v0.95 añade una prueba reproducible de cinco victorias mediante acciones legítimas en Chromium, además de la simulación determinista de Node. **v1.0 sigue sin estar certificada**: faltan sesiones manuales, hardware físico y revisión de equilibrio. Véase [RELEASE-v095.md](RELEASE-v095.md) y [AUDITORIA-LANZAMIENTO-v094.md](AUDITORIA-LANZAMIENTO-v094.md).
 
 ## Jugar en navegador
 
@@ -33,7 +33,7 @@ El lanzador requiere Python 3 o Node.js, utiliza el primero disponible y sirve e
 Requiere Node.js 22 y npm. Las dependencias declaradas incluyen TypeScript 5.8.x y PixiJS 8.19.0.
 
 ```bash
-npm install --no-audit --no-fund
+npm ci --no-audit --no-fund
 npm run vendor:pixi
 npm run check
 npm run package:site
@@ -42,11 +42,11 @@ npm run verify:site
 
 `npm run check` compila TypeScript y ejecuta la batería de regresión Node. Los tests de navegador usan Python, Playwright y Chromium; consulta `.github/workflows/ci.yml` para los comandos y versiones utilizados. La publicación verificada usa `.github/workflows/publish-pages.yml`.
 
-**Reproducibilidad pendiente:** el repositorio aún no incluye `package-lock.json`; no se debe sustituir `npm install` por `npm ci` hasta generar, revisar y versionar el lockfile.
+**Reproducibilidad:** la instalación del proyecto utiliza el `package-lock.json` versionado, que se genera y comprueba mediante GitHub Actions. Si falta, `npm ci` debe fallar.
 
 ## Alcance de la validación
 
-Las pruebas automatizadas no equivalen a una victoria real de principio a fin. El informe [AUDITORIA-LANZAMIENTO-v094.md](AUDITORIA-LANZAMIENTO-v094.md) describe las pruebas de cinco sectores, guardados, controles emulados, mediciones de renderizado por software y la matriz pendiente de hardware físico. Los datos de Chromium headless no representan FPS reales en una GPU.
+La prueba `qa-v095-browser.py` juega la campaña enlazada con una política táctica determinista y comprueba las victorias, el guardado final y errores del navegador; **no equivale a una sesión humana**. El informe [AUDITORIA-LANZAMIENTO-v094.md](AUDITORIA-LANZAMIENTO-v094.md) describe las pruebas anteriores de cinco sectores, guardados, controles emulados, mediciones de renderizado por software y la matriz pendiente de hardware físico. Los datos de Chromium headless no representan FPS reales en una GPU.
 
 ## Estructura principal
 

@@ -3,6 +3,8 @@ const {simulateCampaign}=require('./simulador-tactico.cjs');
 const first=simulateCampaign('agresiva'),replay=simulateCampaign('agresiva');
 assert.deepEqual(first,replay,'La campaña enlazada debe poder reproducirse');
 assert.equal(first.complete,true,'Debe existir una ruta de victoria en campaña enlazada');
+assert.equal(first.finalSector,4,'El sector final debe permanecer dentro de 0..4');
+assert.equal(first.savedCompletionValid,true,'La victoria completa debe ser un guardado restaurable');
 assert.deepEqual(first.sectors.map(s=>s.phase),['won','won','won','won','won']);
 assert.deepEqual(first.sectors.map(s=>s.upgrades),[[],['pen'],['pen','her'],['pen','her'],['pen','her','viu']]);
 assert.ok(first.sectors.every(s=>s.metrics.moves>0&&s.metrics.attacks>0));

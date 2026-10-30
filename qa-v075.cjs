@@ -1,12 +1,12 @@
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const src=fs.readFileSync('src/game.ts','utf8'),gpu=fs.readFileSync('src/pixi-layer.ts','utf8');
-assert.ok(['0.75.0','0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0','0.92.0','0.93.0','0.94.0'].includes(require('./package.json').version));
+assert.ok(['0.75.0','0.80.0','0.81.0','0.82.0','0.83.0','0.84.0','0.85.0','0.90.0','0.91.0','0.92.0','0.93.0','0.94.0','0.95.0'].includes(require('./package.json').version));
 assert.match(src,/AbyssView=\(\)=>/);assert.match(src,/hideCanvasUnits/);
 assert.match(gpu,/new pixi\.Container\(\)/);assert.match(gpu,/new pixi\.Sprite\(/);
 assert.match(gpu,/nativeDraw\(now\)/);assert.match(gpu,/runtime\.nativeUnits/);
 assert.match(gpu,/texture\.source\.update\(\)/);
 assert.match(fs.readFileSync('game.js','utf8'),/into-the-abyss\.v0\.8\.save/);
 for(const name of ['INICIAR-LINUX.sh','INICIAR-WINDOWS.bat'])assert.ok(fs.statSync(name).size>100);
-assert.match(fs.readFileSync('index.html','utf8'),/REBIRTH 0\.(75|80|81|82|83|84|85|90|91|92|93|94)/);
+assert.match(fs.readFileSync('index.html','utf8'),/REBIRTH 0\.(75|80|81|82|83|84|85|90|91|92|93|94|95)/);
 console.log('PASS v075 native sprites, grid decoration, preservation of tactical saves and launchers');

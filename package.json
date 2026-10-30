@@ -1,6 +1,6 @@
 {
   "name": "into-the-abyss-404-rebirth",
-  "version": "0.94.0",
+  "version": "0.95.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.tactics.json && tsc -p tsconfig.json && node scripts/build-game.cjs",
