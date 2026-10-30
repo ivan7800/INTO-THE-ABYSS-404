@@ -51,7 +51,11 @@ namespace AbyssTactics {
         return ally?.shield?-12:0;
       }
       if(['anchor','boss','leviathan'].includes(e.type)&&t.kind==='building')return -22;
-      if(e.type==='weaver'&&t.kind==='unit')return -8;
+      if(e.type==='weaver'&&t.kind==='unit'){
+        // A web that catches an unshielded Custodian is most effective.
+        const ally=s.units.find(u=>u.side==='ally'&&u.hp>0&&u.x===t.x&&u.y===t.y);
+        return ally?.shield?-4:-18;
+      }
       return 0;
     };
     const score=(t:(typeof candidates)[number])=>distance(e,t)*10+(t.kind==='building'?45:0)+(t.hp===1?-3:0)+danger(t)*5+specialist(t);
