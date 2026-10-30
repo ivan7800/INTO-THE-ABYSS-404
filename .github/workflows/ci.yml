@@ -17,8 +17,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install exact versions
-        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
       - name: Vendor official PixiJS with license
         run: npm run vendor:pixi
       - name: TypeScript and tactical regression
@@ -32,7 +32,7 @@ jobs:
           python3 -m pip install --user playwright==1.55.0
           python3 -m playwright install --with-deps chromium
       - name: Browser test of real PixiJS on HTTP
-        run: python3 qa-v070-browser.py && python3 qa-v075-browser.py && python3 qa-v080-browser.py && python3 qa-v081-browser.py && python3 qa-v082-browser.py && python3 qa-v083-browser.py && python3 qa-v084-browser.py && python3 qa-v085-browser.py && python3 qa-v090-browser.py && python3 qa-v091-browser.py && python3 qa-v092-browser.py && python3 qa-v093-browser.py && python3 qa-v094-browser.py
+        run: python3 qa-v070-browser.py && python3 qa-v075-browser.py && python3 qa-v080-browser.py && python3 qa-v081-browser.py && python3 qa-v082-browser.py && python3 qa-v083-browser.py && python3 qa-v084-browser.py && python3 qa-v085-browser.py && python3 qa-v090-browser.py && python3 qa-v091-browser.py && python3 qa-v092-browser.py && python3 qa-v093-browser.py && python3 qa-v094-browser.py && python3 qa-v095-browser.py
       - name: Audit five sectors and Chromium frame timing
         run: python3 qa-launch-audit.py
       - name: Upload launch audit measurements (headless CI, not physical hardware)
